@@ -4,20 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Peso di Baby</title>
-    <!-- Configurazione PWA per renderla installabile come un'app nativa con icona su schermo -->
+    <!-- Questa riga dice al telefono che è un'app installabile -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Peso Baby">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👶🏼</text></svg>">
     
-    <!-- Web App Manifest inline tramite Data URI per evitare file multipli su GitHub -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIklsIFBlc28gZGkgQmFieSIsCiAgInNob3J0X25hbWUiOiAiUGVzbyBCYWJ5IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmY5ZmEiLAogICJ0aGVtZV9jb2xvciI6ICIjZmZiNmMxIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHRleHQgeT0nLjllbScgZm9udC1zaXplPTknMD48L3RleHQ+PC9zdmc+IiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
-
     <style>
         :root {
-            --primary-color: #ffb6c1; 
-            --secondary-color: #a0e7e5; 
-            --background-color: #fff9fa; 
+            --primary-color: #ffb6c1; /* Rosa pastello neonati */
+            --background-color: #fff9fa; /* Sfondo morbido */
             --text-color: #5c4d4d;
             --card-bg: #ffffff;
         }
@@ -26,7 +20,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Comfortaa', 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -36,7 +30,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
         }
 
         .app-container {
@@ -45,66 +39,49 @@
             box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
             width: 100%;
             max-width: 450px;
-            padding: 25px;
+            padding: 30px;
             text-align: center;
             border: 4px solid #ffe4e1;
-            position: relative;
-        }
-
-        .header-decor {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             color: #ff8da1;
             margin-bottom: 5px;
-            font-weight: 700;
         }
 
         .subtitle {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #8c7b7b;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: left;
         }
 
         label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: #7a6666;
-            padding-left: 5px;
         }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             border: 2px solid #ffe4e1;
             border-radius: 20px;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             color: var(--text-color);
             background-color: #fffcfc;
             outline: none;
-            transition: all 0.3s ease;
-            -webkit-appearance: none;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
         }
 
         .weight-input-container {
@@ -127,120 +104,80 @@
             border: none;
             padding: 16px;
             border-radius: 20px;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(255, 148, 162, 0.4);
-            transition: all 0.3s ease;
-            margin-top: 5px;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(255, 148, 162, 0.6);
-        }
-
-        .pwa-instruction {
-            margin-top: 20px;
-            background-color: #f0fdf4;
-            border: 1px dashed #bbf7d0;
-            padding: 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            color: #166534;
+            margin-top: 10px;
         }
 
         .status-message {
-            margin-top: 15px;
+            margin-top: 20px;
             padding: 12px;
             border-radius: 15px;
             font-size: 0.95rem;
             display: none;
         }
 
-        .status-success { background-color: #e3fcef; color: #0e6245; border: 1px solid #abf5d1; display: block; }
-        .status-error { background-color: #ffebe6; color: #bf2600; border: 1px solid #ffbdad; display: block; }
-
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #ff94a2;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-success { background-color: #e3fcef; color: #0e6245; display: block; }
+        .status-error { background-color: #ffebe6; color: #bf2600; display: block; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <div class="header-decor">👶🏼</div>
         <h1>Il Peso di Baby 🎀</h1>
-        <div class="subtitle">Per Francesca • Inserimento Rapido</div>
+        <div class="subtitle">Per Francesca • Registra la crescita con un click</div>
 
         <form id="weightForm">
             <div class="form-group">
-                <label for="date">Data e Ora</label>
+                <label for="date">Data e Ora della pesata</label>
                 <input type="datetime-local" id="date" required>
             </div>
 
             <div class="form-group">
                 <label for="weight">Peso Esatto</label>
                 <div class="weight-input-container">
+                    <!-- inputmode="decimal" apre subito i numeri grandi sulla tastiera del telefono -->
                     <input type="number" id="weight" step="0.001" min="0" placeholder="es. 3.450" inputmode="decimal" required>
                     <span class="weight-unit">kg</span>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="notes">Note</label>
-                <input type="text" id="notes" placeholder="es. pre-poppata, nuda...">
+                <label for="notes">Momento della pesata</label>
+                <!-- MODIFICATO: Ora è un menù a scelta fissa con le tue due opzioni -->
+                <select id="notes" required>
+                    <option value="Prima della pesata">🍼 Prima della pesata</option>
+                    <option value="Dopo la pesata">✨ Dopo la pesata</option>
+                </select>
             </div>
 
-            <button type="submit" id="submitBtn">Salva Istantaneamente ✨</button>
+            <button type="submit" id="submitBtn">Salva Pesata ✨</button>
         </form>
 
         <div id="status" class="status-message"></div>
-
-        <!-- Istruzioni dinamiche basate sul dispositivo per installare l'app come icona/widget rapido -->
-        <div class="pwa-instruction" id="pwaHint">
-            💡 <strong>Consiglio per Francesca:</strong> Aggiungi questa pagina alla tua schermata Home per aprirla con un tocco come se fosse un'app reale!
-        </div>
     </div>
 
     <script>
-        // Imposta automaticamente data e ora corrente
+        // Mette in automatico l'ora di adesso per non far perdere tempo a Francesca
         window.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
-            
-            // Rileva sistema operativo per personalizzare l'aiuto widget
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const hint = document.getElementById('pwaHint');
-            if (isIOS) {
-                hint.innerHTML = "📲 <strong>Per Francesca:</strong> Premi il tasto <strong>Condividi</strong> in Safari (l'icona col quadrato e la freccia in alto) e seleziona <strong>'Aggiungi alla schermata Home'</strong> per creare il widget rapido.";
-            } else {
-                hint.innerHTML = "📲 <strong>Per Francesca:</strong> Premi i 3 pallini in alto a destra su Chrome e seleziona <strong>'Installa app'</strong> o <strong>'Aggiungi a schermata Home'</strong>.";
-            }
         });
 
-        // Configurazione URL Google Script (Ricordati di inserire il tuo link reale generato)
-        const SCRIPT_URL = "INSERISCI_QUI_URL_GOOGLE_APPS_SCRIPT";
+        // Metti qui l'URL che ti darà Google quando distribuisci lo script
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
 
         document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
             const submitBtn = document.getElementById('submitBtn');
             const statusDiv = document.getElementById('status');
             
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loader"></span>Salvataggio...';
-            statusDiv.className = 'status-message';
+            submitBtn.innerText = 'Salvataggio in corso...';
             statusDiv.style.display = 'none';
 
             const formData = {
@@ -257,34 +194,27 @@
                 body: JSON.stringify(formData)
             })
             .then(() => {
-                statusDiv.innerText = "Peso registrato nel foglio! 💖👶🏼";
+                statusDiv.innerText = "Pesata salvata con successo nel foglio! 💖👶🏼";
                 statusDiv.className = 'status-message status-success';
+                
+                // Svuota il peso per la prossima volta
                 document.getElementById('weight').value = '';
-                document.getElementById('notes').value = '';
+                
+                // Aggiorna l'ora a quella attuale
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('date').value = now.toISOString().slice(0, 16);
             })
             .catch(error => {
                 console.error(error);
-                statusDiv.innerText = "Errore. Riprova! ❌";
+                statusDiv.innerText = "Errore nel salvataggio. Riprova! ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Salva Istantaneamente ✨';
+                submitBtn.innerText = 'Salva Pesata ✨';
             });
         });
-
-        // Registrazione Service Worker per abilitare la funzionalità PWA offline / installabile
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                self.addEventListener('install', e => self.skipWaiting());
-                self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-            `;
-            const blob = new Blob([swCode], {type: 'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(blob));
-        }
     </script>
 </body>
 </html>
