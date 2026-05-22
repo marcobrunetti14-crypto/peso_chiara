@@ -263,9 +263,8 @@
         var pesateHistory = [];
 
         // ⚠️ INCOLLA QUI IL NUOVO URL DI GOOGLE APPS SCRIPT
-        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWCB4oT6a7RDsQ2Uj9OqZMrTI6dKPohqg2twjd9A5C9w6LJbwuhjdWV1KRZRvwuIqN/exec";
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzA3jdsRBKm0K9bX_lxzgwTQCHoKssR63eL3hC3VhwVmZpL9APhUdugCZ54_J36hODy/exec";
 
-        // Funzione per caricare lo storico all'apertura dell'app
         function caricaStoricoDaGoogle() {
             var tableBody = document.getElementById('tableBody');
             
@@ -283,17 +282,15 @@
             })
             .catch(function(error) {
                 console.error(error);
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600;">Impossibile caricare i vecchi dati. Controlla il link di Google. ❌</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600;">Impossibile caricare i vecchi dati. ❌</td></tr>';
             });
         }
 
-        // Imposta automaticamente l'ora attuale e carica i dati storici
         window.addEventListener('DOMContentLoaded', function() {
             var now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
             
-            // Avvia la lettura automatica dallo Sheet
             caricaStoricoDaGoogle();
         });
 
@@ -315,7 +312,6 @@
             var d = new Date(dateValue);
             var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            // Prepara l'oggetto per lo schermo e lo inserisce temporaneamente in cima
             var nuovaPesata = {
                 date: dataFormattata,
                 weight: parseFloat(weightValue).toFixed(3) + " kg",
@@ -323,13 +319,15 @@
                 notes: notesValue
             };
             
+            // Inserisce in cima alla tabella locale
             pesateHistory.unshift(nuovaPesata);
             renderTables();
 
             var formData = {
                 date: dateValue,
                 weight: weightValue,
-                notes: momentValue + " | " + notesValue
+                moment: momentValue,
+                notes: notesValue
             };
 
             fetch(SCRIPT_URL, {
@@ -340,7 +338,7 @@
                 body: JSON.stringify(formData)
             })
             .then(function() {
-                statusDiv.innerText = "Pesata salvata con successo nel foglio online! 💖👶🏼";
+                statusDiv.innerText = "Pesata salvata con successo! 💖👶🏼";
                 statusDiv.className = 'status-message status-success';
                 
                 document.getElementById('weight').value = '';
@@ -352,7 +350,7 @@
             })
             .catch(function(error) {
                 console.error(error);
-                statusDiv.innerText = "Problema di rete, ricarica la pagina. ❌";
+                statusDiv.innerText = "Errore di rete nell'invio a Google. ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(function() {
@@ -365,7 +363,6 @@
             var tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = "";
 
-            // Il server ci dà già l'ordine corretto, lo cicliamo normalmente
             for (var i = 0; i < pesateHistory.length; i++) {
                 var p = pesateHistory[i];
                 
@@ -393,7 +390,6 @@
             }
         }
 
-        // Scarica PDF nativo
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             if (pesateHistory.length === 0) {
                 alert("Non ci sono pesate da scaricare!");
