@@ -13,9 +13,10 @@
 
     <style>
         :root {
-            --primary-color: #ffb6c1; 
-            --background-color: #fff9fa; 
-            --text-color: #5c4d4d;
+            --primary-color: #ff8da1;
+            --primary-light: #ffb6c1; 
+            --background-color: #fff6f7; 
+            --text-color: #4a3f3f;
             --card-bg: #ffffff;
         }
 
@@ -23,48 +24,87 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
 
         body {
             background-color: var(--background-color);
             color: var(--text-color);
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .app-container {
-            background: var(--card-bg);
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
-            width: 100%;
-            max-width: 500px;
-            padding: 30px;
+        /* TITOLO PRINCIPALE TOP DELLA PAGINA */
+        .main-header {
             text-align: center;
-            border: 4px solid #ffe4e1;
-            margin-bottom: 25px;
+            margin-bottom: 35px;
         }
 
-        .header-decor {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            font-size: 2rem;
-            color: #ff8da1;
+        .main-header .decor {
+            font-size: 2.8rem;
             margin-bottom: 5px;
+            animation: float 3s ease-in-out infinite;
         }
 
-        .subtitle {
-            font-size: 0.9rem;
-            color: #8c7b7b;
-            margin-bottom: 25px;
+        .main-header h1 {
+            font-size: 2.4rem;
+            color: var(--primary-color);
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
+        .main-header p {
+            font-size: 1rem;
+            color: #a39294;
+            margin-top: 5px;
+        }
+
+        /* CONTENITORE DASHBOARD AD ALTA COMODITÀ */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            align-items: start;
+        }
+
+        /* Se lo schermo è grande (PC/Tablet), passa a 2 Colonne affiancate */
+        @media (min-width: 850px) {
+            .dashboard-grid {
+                grid-template-columns: 400px 1fr;
+            }
+            .right-column {
+                display: flex;
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+
+        /* STILE DELLE SCHEDE (CARDS) */
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 12px 40px rgba(255, 141, 161, 0.12);
+            border: 1px solid rgba(255, 228, 225, 0.6);
+            transition: transform 0.2s;
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* MODULO DI INSERIMENTO */
         .form-group {
             margin-bottom: 18px;
             text-align: left;
@@ -72,25 +112,28 @@
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 0.95rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
             color: #7a6666;
         }
 
         input, select {
             width: 100%;
-            padding: 14px;
-            border: 2px solid #ffe4e1;
-            border-radius: 20px;
-            font-size: 1.1rem;
+            padding: 14px 16px;
+            border: 2px solid #fcecee;
+            border-radius: 16px;
+            font-size: 1rem;
             color: var(--text-color);
-            background-color: #fffcfc;
+            background-color: #fffefe;
             outline: none;
+            transition: all 0.2s;
         }
 
         input:focus, select:focus {
-            border-color: var(--primary-color);
+            border-color: var(--primary-light);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(255, 182, 193, 0.25);
         }
 
         .weight-input-container {
@@ -99,126 +142,105 @@
 
         .weight-unit {
             position: absolute;
-            right: 20px;
+            right: 18px;
             top: 50%;
             transform: translateY(-50%);
-            font-weight: bold;
-            color: #bfa3a3;
+            font-weight: 700;
+            color: #d1b8bc;
         }
 
+        /* BOTTONI MODERNI */
         button {
             width: 100%;
-            background: linear-gradient(135deg, #ffb6c1, #ff94a2);
+            background: linear-gradient(135deg, #ff94a2, #ff758c);
             color: white;
             border: none;
             padding: 16px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 148, 162, 0.4);
-            margin-top: 5px;
+            box-shadow: 0 6px 20px rgba(255, 117, 140, 0.3);
+            transition: all 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.98);
         }
 
         .btn-pdf {
-            background: linear-gradient(135deg, #a0e7e5, #74d1cf);
-            box-shadow: 0 5px 15px rgba(160, 231, 229, 0.6);
-            margin-top: 20px;
-            color: #3d5a59;
+            background: linear-gradient(135deg, #6fdcd9, #4cb0ae);
+            box-shadow: 0 6px 20px rgba(76, 176, 174, 0.25);
+            margin-top: 15px;
         }
 
         .status-message {
             margin-top: 15px;
             padding: 12px;
-            border-radius: 15px;
-            font-size: 0.95rem;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
             display: none;
         }
+        .status-success { background-color: #e6f9f0; color: #13734c; display: block; }
+        .status-error { background-color: #fff0ed; color: #c42b1c; display: block; }
 
-        .status-success { background-color: #e3fcef; color: #0e6245; display: block; }
-        .status-error { background-color: #ffebe6; color: #bf2600; display: block; }
-
-        .chart-container {
-            width: 100%;
-            max-width: 500px;
-            background: white;
-            border-radius: 25px;
-            padding: 20px;
-            border: 4px solid #ffe4e1;
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.2);
-            margin-bottom: 25px;
-        }
-
-        .table-container {
-            width: 100%;
-            max-width: 500px;
-            background: white;
-            border-radius: 25px;
-            padding: 20px;
-            border: 4px solid #ffe4e1;
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.2);
-            margin-bottom: 50px;
-        }
-
-        .table-title {
-            color: #ff8da1;
-            margin-bottom: 15px;
-            font-size: 1.4rem;
-            text-align: center;
-        }
-
+        /* TABELLA CON SCROLL E SLIDE INTERNA */
         .table-scroll {
-            max-height: 350px; 
+            max-height: 320px; 
             overflow-y: auto;   
             overflow-x: auto;   
-            border-radius: 15px;
-            border: 1px solid #ffe4e1;
+            border-radius: 16px;
+            border: 1px solid #f7e4e6;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            min-width: 450px; 
+            min-width: 480px; 
         }
 
         th, td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #ffe4e1;
+            padding: 14px 16px;
+            border-bottom: 1px solid #fdf1f2;
             font-size: 0.95rem;
         }
 
         th {
-            background-color: #fff1f3;
-            color: #ff8da1;
-            font-weight: bold;
+            background-color: #fff0f2;
+            color: #e6677e;
+            font-weight: 700;
             position: sticky; 
             top: 0;
             z-index: 1;
         }
 
-        /* AREA DI EXPORT PDF NASCOSTA COSTRUITA SU MISURA */
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* STRUTTURA DI EXPORT PDF PERFETTA */
         #pdf-export-area {
             position: absolute;
             left: -9999px;
             top: 0;
-            width: 750px;
+            width: 794px; /* Larghezza esatta A4 */
             background-color: #fff9fa;
-            padding: 40px;
+            padding: 45px;
             box-sizing: border-box;
         }
 
         .pdf-header {
             text-align: center;
-            border-bottom: 4px dashed #ffb6c1;
-            padding-bottom: 20px;
+            border-bottom: 3px dashed #ffb6c1;
+            padding-bottom: 25px;
             margin-bottom: 30px;
         }
 
         .pdf-header h1 {
             color: #ff8da1;
-            font-size: 3rem;
-            margin-bottom: 5px;
+            font-size: 3.2rem;
         }
 
         .pdf-header p {
@@ -229,125 +251,145 @@
 
         .pdf-section-title {
             color: #ff8da1;
-            font-size: 1.5rem;
-            margin: 25px 0 15px 0;
-            border-left: 5px solid #ffb6c1;
-            padding-left: 10px;
+            font-size: 1.6rem;
+            margin: 30px 0 15px 0;
+            border-left: 6px solid #ffb6c1;
+            padding-left: 12px;
+            font-weight: bold;
         }
 
         .pdf-table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            margin-top: 10px;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .pdf-table th {
             background-color: #ffb6c1;
             color: white;
-            padding: 12px;
+            padding: 14px;
             font-size: 1.1rem;
         }
 
         .pdf-table td {
-            padding: 12px;
+            padding: 14px;
             border-bottom: 1px solid #ffe4e1;
             font-size: 1rem;
-            color: #5c4d4d;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="header-decor">👶🏼 🎀 🍼 ✨</div>
-        <h1>Il Peso di Baby 🎀</h1>
-        <div class="subtitle">Per Francesca • Registra la crescita con un click</div>
+    <div class="main-header">
+        <div class="decor">👶🏼🎀🍼</div>
+        <h1>Il Peso di Baby</h1>
+        <p>Il diario della crescita di Francesca</p>
+    </div>
 
-        <form id="weightForm">
-            <div class="form-group">
-                <label for="date">📅 Data e Ora della pesata</label>
-                <input type="datetime-local" id="date" required>
-            </div>
+    <div class="dashboard-grid">
+        
+        <div class="card">
+            <h2 class="card-title">✍🏼 Registra Pesata</h2>
+            <form id="weightForm">
+                <div class="form-group">
+                    <label for="date">📅 Data e Ora</label>
+                    <input type="datetime-local" id="date" required>
+                </div>
 
-            <div class="form-group">
-                <label for="weight">⚖️ Peso Esatto</label>
-                <div class="weight-input-container">
-                    <input type="number" id="weight" step="0.001" min="0" placeholder="es. 3.450" inputmode="decimal" required>
-                    <span class="weight-unit">kg</span>
+                <div class="form-group">
+                    <label for="weight">⚖️ Peso Corporeo</label>
+                    <div class="weight-input-container">
+                        <input type="number" id="weight" step="0.001" min="0" placeholder="es. 3.450" inputmode="decimal" required>
+                        <span class="weight-unit">kg</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="moment">🍼 Condizione</label>
+                    <select id="moment" required>
+                        <option value="Prima della pesata">🍼 Prima della pesata</option>
+                        <option value="Dopo la pesata">✨ Dopo la pesata</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">📝 Note Libere</label>
+                    <input type="text" id="notes" placeholder="Nuda, tranquilla, dopo poppata...">
+                </div>
+
+                <button type="submit" id="submitBtn">Salva nei Dati ✨</button>
+            </form>
+
+            <div id="status" class="status-message"></div>
+            
+            <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Esporta File PDF</button>
+        </div>
+
+        <div class="right-column">
+            
+            <div class="card">
+                <h2 class="card-title">📈 Curva di Crescita</h2>
+                <div style="position: relative; width:100%; height:auto;">
+                    <canvas id="growthChart"></canvas>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="moment">🍼 Momento della pesata</label>
-                <select id="moment" required>
-                    <option value="Prima della pesata">🍼 Prima della pesata</option>
-                    <option value="Dopo la pesata">✨ Dopo la pesata</option>
-                </select>
+            <div class="card">
+                <h2 class="card-title">📊 Storico delle Pesate</h2>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data e Ora</th>
+                                <th>Peso</th>
+                                <th>Momento</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #bfa3a3; padding: 30px;">
+                                    Connessione a Google Sheets in corso... 🎀
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="notes">📝 Appunti e Note Libere</label>
-                <input type="text" id="notes" placeholder="Scrivi qui altri dettagli...">
-            </div>
-
-            <button type="submit" id="submitBtn">Salva Pesata ✨</button>
-        </form>
-
-        <div id="status" class="status-message"></div>
-        
-        <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Scarica PDF "Piccola Baby"</button>
-    </div>
-
-    <div class="chart-container">
-        <h2 class="table-title">📈 Andamento della Crescita</h2>
-        <canvas id="growthChart"></canvas>
-    </div>
-
-    <div class="table-container">
-        <h2 class="table-title">📊 Riepilogo delle Pesate</h2>
-        <div class="table-scroll">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Data e Ora</th>
-                        <th>Peso</th>
-                        <th>Momento</th>
-                        <th>Appunti/Note</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: #bfa3a3;">Caricamento in corso... 🎀</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
     <div id="pdf-export-area">
         <div class="pdf-header">
             <h1>Piccola Baby 👶🏼🎀</h1>
-            <p>✨ Diario e Grafico della Crescita della Nostra Piccola ✨</p>
+            <p>✨ Diario ufficiale e grafico della crescita della nostra bimba ✨</p>
         </div>
         
-        <div class="pdf-section-title">📈 Grafico della Crescita</div>
-        <div style="background: white; padding: 15px; border-radius: 20px; border: 1px solid #ffe4e1;">
+        <div class="pdf-section-title">📈 Curva di Crescita Progressiva</div>
+        <div style="background: white; padding: 20px; border-radius: 20px; border: 1px solid #ffe4e1;">
             <img id="pdf-chart-image" style="width: 100%; height: auto; display: block;" />
         </div>
 
-        <div class="pdf-section-title">📋 Registro Storico delle Pesate</div>
+        <div class="pdf-section-title">📋 Registro Cronologico delle Pesate</div>
         <table class="pdf-table">
             <thead>
                 <tr>
                     <th style="text-align: left;">Data e Ora</th>
-                    <th style="text-align: left;">Peso (kg)</th>
+                    <th style="text-align: left;">Peso Registrato</th>
                     <th style="text-align: left;">Momento</th>
-                    <th style="text-align: left;">Appunti e Note</th>
+                    <th style="text-align: left;">Note e Appunti</th>
                 </tr>
             </thead>
-            <tbody id="pdfTableBody">
-                </tbody>
+            <tbody id="pdfTableBody"></tbody>
         </table>
     </div>
 
@@ -355,13 +397,11 @@
         var pesateHistory = [];
         var myChart = null;
 
-        // ⚠️ INCOLLA QUI L'URL DEL TUO GOOGLE APPS SCRIPT
+        // ⚠️ METTI QUI IL TUO URL DI GOOGLE APPS SCRIPT
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzA3jdsRBKm0K9bX_lxzgwTQCHoKssR63eL3hC3VhwVmZpL9APhUdugCZ54_J36hODy/exec";
 
-        // Funzione per ripulire la stringa della data se arriva nel formato lungo di sistema
         function pulisciData(dataStr) {
             if (!dataStr) return "-";
-            // Se contiene una data estesa (es: "Fri May 22 2026..."), estrae e converte
             if (dataStr.includes("GMT") || dataStr.includes("Ora legale")) {
                 try {
                     var parsedDate = new Date(dataStr);
@@ -370,7 +410,7 @@
                     }
                 } catch(e) { console.error(e); }
             }
-            return dataStr; // Altrimenti restituisce la stringa originale già pulita
+            return dataStr;
         }
 
         function caricaStoricoDaGoogle() {
@@ -383,12 +423,12 @@
                     pesateHistory = data;
                     renderTablesAndChart();
                 } else {
-                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3;">Nessuna pesata trovata. Inserisci la prima! 👶🏼</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 20px;">Nessun dato presente nel foglio Google.</td></tr>';
                 }
             })
             .catch(function(error) {
                 console.error(error);
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600;">Errore nel caricamento dei dati. ❌</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600; padding: 20px;">Impossibile caricare lo storico da remoto. ❌</td></tr>';
             });
         }
 
@@ -443,7 +483,7 @@
                 body: JSON.stringify(formData)
             })
             .then(function() {
-                statusDiv.innerText = "Pesata salvata con successo! 💖👶🏼";
+                statusDiv.innerText = "Salvataggio eseguito su Google Sheets! 💖";
                 statusDiv.className = 'status-message status-success';
                 
                 document.getElementById('weight').value = '';
@@ -455,12 +495,12 @@
             })
             .catch(function(error) {
                 console.error(error);
-                statusDiv.innerText = "Errore di salvataggio di rete. ❌";
+                statusDiv.innerText = "Errore di connessione a Google. ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(function() {
                 submitBtn.disabled = false;
-                submitBtn.innerText = 'Salva Pesata ✨';
+                submitBtn.innerText = 'Salva nei Dati ✨';
             });
         });
 
@@ -476,8 +516,6 @@
 
             for (var i = 0; i < pesateHistory.length; i++) {
                 var p = pesateHistory[i];
-                
-                // Pulisce la data se contiene stringhe lunghe di sistema
                 var dataPulita = pulisciData(p.date);
                 
                 var row = document.createElement('tr');
@@ -495,11 +533,8 @@
                 }
             }
 
-            // CORREZIONE CRITICA: getContext('2d') sistemato!
             var ctx = document.getElementById('growthChart').getContext('2d');
-            if (myChart) {
-                myChart.destroy();
-            }
+            if (myChart) { myChart.destroy(); }
 
             myChart = new Chart(ctx, {
                 type: 'line',
@@ -508,30 +543,35 @@
                     datasets: [{
                         label: 'Peso (kg)',
                         data: chartWeights,
-                        borderColor: '#ff8da1',
-                        backgroundColor: 'rgba(255, 182, 193, 0.2)',
+                        borderColor: '#ff758c',
+                        backgroundColor: 'rgba(255, 141, 161, 0.15)',
                         borderWidth: 3,
-                        pointBackgroundColor: '#ff69b4',
+                        pointBackgroundColor: '#ff4f6e',
+                        pointHoverBackgroundColor: '#fff',
                         pointRadius: 4,
-                        tension: 0.15
+                        tension: 0.18
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
                     scales: {
                         y: {
                             beginAtZero: false,
-                            title: { display: true, text: 'Peso (kg)' }
+                            grid: { color: '#fcedf0' },
+                            ticks: { color: '#8a7577' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#8a7577', maxRotation: 45, minRotation: 45 }
                         }
                     },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
 
-        // GENERATORE FILE PDF FUNZIONANTE
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             if (pesateHistory.length === 0) {
                 alert("Non ci sono pesate da esportare!");
@@ -540,39 +580,32 @@
 
             var downloadBtn = document.getElementById('downloadPdfBtn');
             downloadBtn.disabled = true;
-            downloadBtn.innerText = "Generazione PDF...";
+            downloadBtn.innerText = "Esportazione...";
 
-            // Esporta l'immagine del grafico per il PDF
             var chartImageSrc = myChart.toBase64Image();
             document.getElementById('pdf-chart-image').src = chartImageSrc;
 
             var areaPdf = document.getElementById('pdf-export-area');
             
             setTimeout(function() {
-                html2canvas(areaPdf, {
-                    scale: 2,
-                    useCORS: true
-                }).then(function(canvas) {
+                html2canvas(areaPdf, { scale: 2, useCORS: true }).then(function(canvas) {
                     var imgData = canvas.toDataURL('image/jpeg', 0.98);
                     
                     var { jsPDF } = window.jspdf;
                     var pdf = new jsPDF('p', 'mm', 'a4');
                     
                     var widthInMm = pdf.internal.pageSize.getWidth();
-                    var canvasWidth = canvas.width;
-                    var canvasHeight = canvas.height;
-                    var imgHeightInMm = (canvasHeight * widthInMm) / canvasWidth;
+                    var imgHeightInMm = (canvas.height * widthInMm) / canvas.width;
 
                     pdf.addImage(imgData, 'JPEG', 0, 0, widthInMm, imgHeightInMm);
                     pdf.save('Piccola_Baby.pdf');
                     
                     downloadBtn.disabled = false;
-                    downloadBtn.innerText = '📥 Scarica PDF "Piccola Baby"';
+                    downloadBtn.innerText = '📥 Esporta File PDF';
                 }).catch(function(err) {
                     console.error(err);
-                    alert("Impossibile generare il PDF.");
                     downloadBtn.disabled = false;
-                    downloadBtn.innerText = '📥 Scarica PDF "Piccola Baby"';
+                    downloadBtn.innerText = '📥 Esporta File PDF';
                 });
             }, 600);
         });
