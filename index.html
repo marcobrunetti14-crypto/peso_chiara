@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Peso Baby">
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
     <style>
         :root {
@@ -138,7 +138,6 @@
         .status-success { background-color: #e3fcef; color: #0e6245; display: block; }
         .status-error { background-color: #ffebe6; color: #bf2600; display: block; }
 
-        /* CONTENITORE GRAFICO NELL'INTERFACCIA */
         .chart-container {
             width: 100%;
             max-width: 500px;
@@ -150,7 +149,6 @@
             margin-bottom: 25px;
         }
 
-        /* TABELLA RESPONSIVE CON SCROLL INTERNO (NIENTE SCROLL INFINITO DELLA PAGINA) */
         .table-container {
             width: 100%;
             max-width: 500px;
@@ -169,11 +167,10 @@
             text-align: center;
         }
 
-        /* Trucco CSS: blocca l'altezza massima e attiva la slide laterale e verticale */
         .table-scroll {
             max-height: 350px; 
-            overflow-y: auto;   /* Scroll verticale se ci sono tante righe */
-            overflow-x: auto;   /* Slide laterale su schermi piccoli */
+            overflow-y: auto;   
+            overflow-x: auto;   
             border-radius: 15px;
             border: 1px solid #ffe4e1;
         }
@@ -182,7 +179,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            min-width: 400px; /* Garantisce la slide laterale senza schiacciare il testo */
+            min-width: 450px; 
         }
 
         th, td {
@@ -195,12 +192,12 @@
             background-color: #fff1f3;
             color: #ff8da1;
             font-weight: bold;
-            position: sticky; /* Mantiene la riga di intestazione fissa in alto mentre scrolli */
+            position: sticky; 
             top: 0;
             z-index: 1;
         }
 
-        /* STRUTTURA NASCOSTA CREATA APPOSITAMENTE PER IL PDF COMPATTO */
+        /* AREA DI EXPORT PDF NASCOSTA COSTRUITA SU MISURA */
         #pdf-export-area {
             position: absolute;
             left: -9999px;
@@ -358,8 +355,23 @@
         var pesateHistory = [];
         var myChart = null;
 
-        // ⚠️ INCOLLA QUI IL TUO URL DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
+        // ⚠️ INCOLLA QUI L'URL DEL TUO GOOGLE APPS SCRIPT
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzA3jdsRBKm0K9bX_lxzgwTQCHoKssR63eL3hC3VhwVmZpL9APhUdugCZ54_J36hODy/exec";
+
+        // Funzione per ripulire la stringa della data se arriva nel formato lungo di sistema
+        function pulisciData(dataStr) {
+            if (!dataStr) return "-";
+            // Se contiene una data estesa (es: "Fri May 22 2026..."), estrae e converte
+            if (dataStr.includes("GMT") || dataStr.includes("Ora legale")) {
+                try {
+                    var parsedDate = new Date(dataStr);
+                    if (!isNaN(parsedDate.getTime())) {
+                        return parsedDate.toLocaleDateString('it-IT') + ' ' + parsedDate.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+                    }
+                } catch(e) { console.error(e); }
+            }
+            return dataStr; // Altrimenti restituisce la stringa originale già pulita
+        }
 
         function caricaStoricoDaGoogle() {
             var tableBody = document.getElementById('tableBody');
@@ -368,7 +380,6 @@
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 if(data && data.length > 0) {
-                    // Google ci restituisce le pesate dall'ultima alla prima, le mettiamo nello storico locale
                     pesateHistory = data;
                     renderTablesAndChart();
                 } else {
@@ -414,7 +425,6 @@
                 notes: notesValue
             };
             
-            // Mette l'elemento appena inserito in cima alla lista dell'app
             pesateHistory.unshift(nuovaPesata);
             renderTablesAndChart();
 
@@ -445,7 +455,7 @@
             })
             .catch(function(error) {
                 console.error(error);
-                statusDiv.innerText = "Errore di rete, ma salvato nella tabella sotto! ❌";
+                statusDiv.innerText = "Errore di salvataggio di rete. ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(function() {
@@ -454,7 +464,6 @@
             });
         });
 
-        // Aggiorna la Tabella Web, la Tabella del PDF e rigenera il Grafico
         function renderTablesAndChart() {
             var tableBody = document.getElementById('tableBody');
             var pdfTableBody = document.getElementById('pdfTableBody');
@@ -462,35 +471,34 @@
             tableBody.innerHTML = "";
             pdfTableBody.innerHTML = "";
 
-            // Array di supporto per caricare i dati nel grafico in ordine cronologico corretto (da sinistra a destra)
             var chartLabels = [];
             var chartWeights = [];
 
             for (var i = 0; i < pesateHistory.length; i++) {
                 var p = pesateHistory[i];
                 
-                // Generazione riga per interfaccia Web
+                // Pulisce la data se contiene stringhe lunghe di sistema
+                var dataPulita = pulisciData(p.date);
+                
                 var row = document.createElement('tr');
-                row.innerHTML = "<td>" + p.date + "</td><td><strong>" + p.weight + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
+                row.innerHTML = "<td>" + dataPulita + "</td><td><strong>" + p.weight + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
                 tableBody.appendChild(row);
 
-                // Generazione riga speculare per la tabella del PDF
                 var pdfRow = document.createElement('tr');
-                pdfRow.innerHTML = "<td>" + p.date + "</td><td><strong>" + p.weight + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
+                pdfRow.innerHTML = "<td>" + dataPulita + "</td><td><strong>" + p.weight + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
                 pdfTableBody.appendChild(pdfRow);
 
-                // Estrae solo il valore numerico del peso per il grafico (es: "3.450 kg" diventa 3.45)
                 var pesoNumerico = parseFloat(p.weight.replace(" kg", ""));
-                
-                // Mettiamo i dati all'inizio dell'array per capovolgere la cronologia solo nel grafico (prima data a sinistra, ultima a destra)
-                chartLabels.unshift(p.date.split(" ")[0]); // Prende solo il giorno/mese senza orario per non affollare il grafico
-                chartWeights.unshift(pesoNumerico);
+                if(!isNaN(pesoNumerico)) {
+                    chartLabels.unshift(dataPulita.split(" ")[0]); 
+                    chartWeights.unshift(pesoNumerico);
+                }
             }
 
-            // AGGIORNAMENTO O CREAZIONE DEL GRAFICO (CHART.JS)
-            var ctx = document.getElementById('growthChart').getContext('2-digit');
+            // CORREZIONE CRITICA: getContext('2d') sistemato!
+            var ctx = document.getElementById('growthChart').getContext('2d');
             if (myChart) {
-                myChart.destroy(); // Distrugge il vecchio grafico per evitare sovrapposizioni visive
+                myChart.destroy();
             }
 
             myChart = new Chart(ctx, {
@@ -498,14 +506,14 @@
                 data: {
                     labels: chartLabels,
                     datasets: [{
-                        label: 'Peso di Baby (kg)',
+                        label: 'Peso (kg)',
                         data: chartWeights,
                         borderColor: '#ff8da1',
                         backgroundColor: 'rgba(255, 182, 193, 0.2)',
                         borderWidth: 3,
                         pointBackgroundColor: '#ff69b4',
-                        pointRadius: 5,
-                        tension: 0.2 // Rende la linea leggermente morbida e curva
+                        pointRadius: 4,
+                        tension: 0.15
                     }]
                 },
                 options: {
@@ -513,7 +521,7 @@
                     scales: {
                         y: {
                             beginAtZero: false,
-                            title: { display: true, text: 'Peso (kg)', color: '#5c4d4d' }
+                            title: { display: true, text: 'Peso (kg)' }
                         }
                     },
                     plugins: {
@@ -523,58 +531,50 @@
             });
         }
 
-        // GENERATORE FILE PDF "PICCOLA BABY" AD ALTA QUALITÀ CON TITOLO, GRAFICO E TABELLA
+        // GENERATORE FILE PDF FUNZIONANTE
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             if (pesateHistory.length === 0) {
-                alert("Non ci sono pesate da esportare nel PDF!");
+                alert("Non ci sono pesate da esportare!");
                 return;
             }
 
             var downloadBtn = document.getElementById('downloadPdfBtn');
             downloadBtn.disabled = true;
-            downloadBtn.innerText = "Generazione PDF in corso...";
+            downloadBtn.innerText = "Generazione PDF...";
 
-            // Trasforma il grafico interattivo in un'immagine statica da inserire nel PDF
+            // Esporta l'immagine del grafico per il PDF
             var chartImageSrc = myChart.toBase64Image();
             document.getElementById('pdf-chart-image').src = chartImageSrc;
 
-            // Avvia la cattura dell'area PDF nascosta usando html2canvas
             var areaPdf = document.getElementById('pdf-export-area');
             
-            // Piccolo timeout per essere sicuri che l'immagine del grafico sia caricata nel DOM
             setTimeout(function() {
                 html2canvas(areaPdf, {
-                    scale: 2, // Aumenta la risoluzione per rendere i testi nitidi nella stampa
+                    scale: 2,
                     useCORS: true
                 }).then(function(canvas) {
-                    var imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    var imgData = canvas.toDataURL('image/jpeg', 0.98);
                     
-                    // Crea il foglio PDF in formato A4 verticale
                     var { jsPDF } = window.jspdf;
                     var pdf = new jsPDF('p', 'mm', 'a4');
                     
                     var widthInMm = pdf.internal.pageSize.getWidth();
-                    var heightInMm = pdf.internal.pageSize.getHeight();
-                    
-                    // Calcola le proporzioni corrette per far stare tutto in una pagina o più pagine proporzionate
                     var canvasWidth = canvas.width;
                     var canvasHeight = canvas.height;
                     var imgHeightInMm = (canvasHeight * widthInMm) / canvasWidth;
 
                     pdf.addImage(imgData, 'JPEG', 0, 0, widthInMm, imgHeightInMm);
-                    
-                    // Salva il file sul telefono con il titolo richiesto
                     pdf.save('Piccola_Baby.pdf');
                     
                     downloadBtn.disabled = false;
                     downloadBtn.innerText = '📥 Scarica PDF "Piccola Baby"';
                 }).catch(function(err) {
                     console.error(err);
-                    alert("Errore durante la creazione del PDF.");
+                    alert("Impossibile generare il PDF.");
                     downloadBtn.disabled = false;
                     downloadBtn.innerText = '📥 Scarica PDF "Piccola Baby"';
                 });
-            }, 500);
+            }, 600);
         });
     </script>
 </body>
