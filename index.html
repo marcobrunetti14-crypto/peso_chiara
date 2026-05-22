@@ -26,7 +26,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Elimina il flash blu al tocco su iOS */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -39,7 +39,6 @@
             min-height: 100vh;
         }
 
-        /* INTESTAZIONE OTTIMIZZATA PER MOBILE */
         .main-header {
             text-align: center;
             margin-bottom: 20px;
@@ -64,7 +63,6 @@
             margin-top: 3px;
         }
 
-        /* GRIGLIA FLUIDA: MOBILE-FIRST (1 COLONNA) */
         .dashboard-grid {
             display: flex;
             flex-direction: column;
@@ -73,7 +71,6 @@
             max-width: 1100px;
         }
 
-        /* SCHEDE ADATTIVE */
         .card {
             background: var(--card-bg);
             border-radius: 24px;
@@ -93,7 +90,6 @@
             gap: 8px;
         }
 
-        /* INPUT E FORM COMODI DA TAPPARE */
         .form-group {
             margin-bottom: 15px;
             text-align: left;
@@ -112,12 +108,12 @@
             padding: 14px;
             border: 2px solid #fcecee;
             border-radius: 16px;
-            font-size: 1rem; /* Impedisce lo zoom automatico fastidioso su iOS */
+            font-size: 1rem;
             color: var(--text-color);
             background-color: #fffefe;
             outline: none;
             transition: all 0.2s;
-            -webkit-appearance: none; /* Uniforma lo stile dei select su iPhone */
+            -webkit-appearance: none;
         }
 
         input:focus, select:focus {
@@ -138,7 +134,6 @@
             color: #d1b8bc;
         }
 
-        /* PULSANTI SMART */
         button {
             width: 100%;
             background: linear-gradient(135deg, #ff94a2, #ff758c);
@@ -176,28 +171,48 @@
         .status-success { background-color: #e6f9f0; color: #13734c; display: block; }
         .status-error { background-color: #fff0ed; color: #c42b1c; display: block; }
 
-        /* AREA GRAFICO RESPONSIVE */
         .chart-wrapper {
             position: relative;
             width: 100%;
-            height: inherit;
         }
 
-        /* CONTENITORE TABELLA CON SCROLL E INDICAZIONE SLIDE */
+        /* 👑 AREA CORREZIONE: CONTENITORE TABELLA CON SCROLL FORZATO E BARRE VISIBILI */
         .table-scroll {
-            max-height: 300px; 
-            overflow-y: auto;   
-            overflow-x: auto;   
+            max-height: 280px; 
+            overflow-y: scroll !important;  /* Forza l'attivazione dello scroll verticale */
+            overflow-x: auto !important;    /* Attiva lo scroll laterale su schermi piccoli */
             border-radius: 14px;
             border: 1px solid #f7e4e6;
-            -webkit-overflow-scrolling: touch; /* Scroll fluido e morbido su iOS */
+            -webkit-overflow-scrolling: touch !important; /* Rende lo scroll fluidissimo su iPhone/Android */
+        }
+
+        /* Personalizzazione della Scrollbar per renderla sempre visibile su Mobile (Motori Webkit come Safari e Chrome) */
+        .table-scroll::-webkit-scrollbar {
+            width: 8px;  /* Spessore barra verticale */
+            height: 8px; /* Spessore barra orizzontale */
+            display: block !important;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: #fff0f2; /* Colore binario di sfondo */
+            border-radius: 10px;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary-light); /* Colore rosa della barra interna che si muove */
+            border-radius: 10px;
+            border: 1px solid #fff0f2;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            min-width: 500px; /* Mantiene una larghezza minima ottimale per non schiacciare il testo */
+            min-width: 520px; 
         }
 
         th, td {
@@ -215,7 +230,6 @@
             z-index: 1;
         }
 
-        /* COSTRUZIONE RESPONSIVE PER MONITOR GRANDI (DESKTOP/TABLET ORIZZONTALE) */
         @media (min-width: 850px) {
             body {
                 padding: 30px 20px;
@@ -233,9 +247,11 @@
                 flex-direction: column;
                 gap: 25px;
             }
+            .table-scroll {
+                max-height: 330px;
+            }
         }
 
-        /* STRUTTURA DI AMBIENTE DI STAMPA PDF (INVARIATA ED ECCELLENTE) */
         #pdf-export-area {
             position: absolute;
             left: -9999px;
@@ -515,7 +531,6 @@
             var ctx = document.getElementById('growthChart').getContext('2d');
             if (myChart) { myChart.destroy(); }
 
-            // Calcola dinamicamente il corretto rapporto d'aspetto (aspectRatio) in base allo schermo del telefono
             var isMobile = window.innerWidth < 600;
 
             myChart = new Chart(ctx, {
@@ -537,7 +552,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    aspectRatio: isMobile ? 1.4 : 2, // Se mobile lo rende leggermente più quadrato per favorire la lettura
+                    aspectRatio: isMobile ? 1.4 : 2, 
                     scales: {
                         y: {
                             beginAtZero: false,
