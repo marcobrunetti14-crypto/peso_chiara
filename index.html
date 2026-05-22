@@ -2,9 +2,10 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Il Peso di Baby</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Peso Baby">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -25,88 +26,76 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Elimina il flash blu al tocco su iOS */
         }
 
         body {
             background-color: var(--background-color);
             color: var(--text-color);
-            padding: 30px 20px;
+            padding: 15px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* TITOLO PRINCIPALE TOP DELLA PAGINA */
+        /* INTESTAZIONE OTTIMIZZATA PER MOBILE */
         .main-header {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 20px;
+            margin-top: 10px;
         }
 
         .main-header .decor {
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             margin-bottom: 5px;
             animation: float 3s ease-in-out infinite;
         }
 
         .main-header h1 {
-            font-size: 2.4rem;
+            font-size: 1.8rem;
             color: var(--primary-color);
             font-weight: 800;
-            letter-spacing: -0.5px;
         }
 
         .main-header p {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #a39294;
-            margin-top: 5px;
+            margin-top: 3px;
         }
 
-        /* CONTENITORE DASHBOARD AD ALTA COMODITÀ */
+        /* GRIGLIA FLUIDA: MOBILE-FIRST (1 COLONNA) */
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
             width: 100%;
             max-width: 1100px;
-            align-items: start;
         }
 
-        /* Se lo schermo è grande (PC/Tablet), passa a 2 Colonne affiancate */
-        @media (min-width: 850px) {
-            .dashboard-grid {
-                grid-template-columns: 400px 1fr;
-            }
-            .right-column {
-                display: flex;
-                flex-direction: column;
-                gap: 30px;
-            }
-        }
-
-        /* STILE DELLE SCHEDE (CARDS) */
+        /* SCHEDE ADATTIVE */
         .card {
             background: var(--card-bg);
             border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 12px 40px rgba(255, 141, 161, 0.12);
-            border: 1px solid rgba(255, 228, 225, 0.6);
-            transition: transform 0.2s;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(255, 141, 161, 0.08);
+            border: 1px solid rgba(255, 228, 225, 0.5);
+            width: 100%;
         }
 
         .card-title {
             color: var(--primary-color);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        /* MODULO DI INSERIMENTO */
+        /* INPUT E FORM COMODI DA TAPPARE */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 15px;
             text-align: left;
         }
 
@@ -114,26 +103,26 @@
             display: block;
             margin-bottom: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #7a6666;
         }
 
         input, select {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px;
             border: 2px solid #fcecee;
             border-radius: 16px;
-            font-size: 1rem;
+            font-size: 1rem; /* Impedisce lo zoom automatico fastidioso su iOS */
             color: var(--text-color);
             background-color: #fffefe;
             outline: none;
             transition: all 0.2s;
+            -webkit-appearance: none; /* Uniforma lo stile dei select su iPhone */
         }
 
         input:focus, select:focus {
             border-color: var(--primary-light);
-            background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(255, 182, 193, 0.25);
+            box-shadow: 0 0 0 4px rgba(255, 182, 193, 0.2);
         }
 
         .weight-input-container {
@@ -142,69 +131,79 @@
 
         .weight-unit {
             position: absolute;
-            right: 18px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
             font-weight: 700;
             color: #d1b8bc;
         }
 
-        /* BOTTONI MODERNI */
+        /* PULSANTI SMART */
         button {
             width: 100%;
             background: linear-gradient(135deg, #ff94a2, #ff758c);
             color: white;
             border: none;
-            padding: 16px;
+            padding: 15px;
             border-radius: 16px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(255, 117, 140, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 117, 140, 0.25);
             transition: all 0.2s;
         }
 
-        button:active {
-            transform: scale(0.98);
+        button:disabled {
+            background: #e0d0d2;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
         .btn-pdf {
             background: linear-gradient(135deg, #6fdcd9, #4cb0ae);
-            box-shadow: 0 6px 20px rgba(76, 176, 174, 0.25);
-            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(76, 176, 174, 0.2);
+            margin-top: 12px;
         }
 
         .status-message {
-            margin-top: 15px;
+            margin-top: 12px;
             padding: 12px;
             border-radius: 14px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             display: none;
         }
         .status-success { background-color: #e6f9f0; color: #13734c; display: block; }
         .status-error { background-color: #fff0ed; color: #c42b1c; display: block; }
 
-        /* TABELLA CON SCROLL E SLIDE INTERNA */
+        /* AREA GRAFICO RESPONSIVE */
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: inherit;
+        }
+
+        /* CONTENITORE TABELLA CON SCROLL E INDICAZIONE SLIDE */
         .table-scroll {
-            max-height: 320px; 
+            max-height: 300px; 
             overflow-y: auto;   
             overflow-x: auto;   
-            border-radius: 16px;
+            border-radius: 14px;
             border: 1px solid #f7e4e6;
+            -webkit-overflow-scrolling: touch; /* Scroll fluido e morbido su iOS */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            min-width: 480px; 
+            min-width: 500px; /* Mantiene una larghezza minima ottimale per non schiacciare il testo */
         }
 
         th, td {
-            padding: 14px 16px;
+            padding: 12px 14px;
             border-bottom: 1px solid #fdf1f2;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         th {
@@ -216,72 +215,52 @@
             z-index: 1;
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        /* COSTRUZIONE RESPONSIVE PER MONITOR GRANDI (DESKTOP/TABLET ORIZZONTALE) */
+        @media (min-width: 850px) {
+            body {
+                padding: 30px 20px;
+            }
+            .main-header h1 {
+                font-size: 2.4rem;
+            }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: 380px 1fr;
+                gap: 25px;
+            }
+            .right-column {
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+            }
         }
 
-        /* STRUTTURA DI EXPORT PDF PERFETTA */
+        /* STRUTTURA DI AMBIENTE DI STAMPA PDF (INVARIATA ED ECCELLENTE) */
         #pdf-export-area {
             position: absolute;
             left: -9999px;
             top: 0;
-            width: 794px; /* Larghezza esatta A4 */
+            width: 794px;
             background-color: #fff9fa;
             padding: 45px;
             box-sizing: border-box;
         }
-
         .pdf-header {
             text-align: center;
             border-bottom: 3px dashed #ffb6c1;
             padding-bottom: 25px;
             margin-bottom: 30px;
         }
-
-        .pdf-header h1 {
-            color: #ff8da1;
-            font-size: 3.2rem;
-        }
-
-        .pdf-header p {
-            font-size: 1.2rem;
-            color: #8c7b7b;
-            font-style: italic;
-        }
-
-        .pdf-section-title {
-            color: #ff8da1;
-            font-size: 1.6rem;
-            margin: 30px 0 15px 0;
-            border-left: 6px solid #ffb6c1;
-            padding-left: 12px;
-            font-weight: bold;
-        }
-
-        .pdf-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .pdf-table th {
-            background-color: #ffb6c1;
-            color: white;
-            padding: 14px;
-            font-size: 1.1rem;
-        }
-
-        .pdf-table td {
-            padding: 14px;
-            border-bottom: 1px solid #ffe4e1;
-            font-size: 1rem;
-        }
+        .pdf-header h1 { color: #ff8da1; font-size: 3.2rem; }
+        .pdf-header p { font-size: 1.2rem; color: #8c7b7b; font-style: italic; }
+        .pdf-section-title { color: #ff8da1; font-size: 1.6rem; margin: 30px 0 15px 0; border-left: 6px solid #ffb6c1; padding-left: 12px; font-weight: bold; }
+        .pdf-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        .pdf-table th { background-color: #ffb6c1; color: white; padding: 14px; font-size: 1.1rem; }
+        .pdf-table td { padding: 14px; border-bottom: 1px solid #ffe4e1; font-size: 1rem; }
 
         @keyframes float {
             0% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
+            50% { transform: translateY(-5px); }
             100% { transform: translateY(0px); }
         }
     </style>
@@ -322,7 +301,7 @@
 
                 <div class="form-group">
                     <label for="notes">📝 Note Libere</label>
-                    <input type="text" id="notes" placeholder="Nuda, tranquilla, dopo poppata...">
+                    <input type="text" id="notes" placeholder="Nuda, tranquilla...">
                 </div>
 
                 <button type="submit" id="submitBtn">Salva nei Dati ✨</button>
@@ -333,16 +312,16 @@
             <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Esporta File PDF</button>
         </div>
 
-        <div class="right-column">
+        <div class="right-column" style="width: 100%;">
             
             <div class="card">
                 <h2 class="card-title">📈 Curva di Crescita</h2>
-                <div style="position: relative; width:100%; height:auto;">
+                <div class="chart-wrapper">
                     <canvas id="growthChart"></canvas>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" style="margin-bottom: 20px;">
                 <h2 class="card-title">📊 Storico delle Pesate</h2>
                 <div class="table-scroll">
                     <table>
@@ -356,8 +335,8 @@
                         </thead>
                         <tbody id="tableBody">
                             <tr>
-                                <td colspan="4" style="text-align: center; color: #bfa3a3; padding: 30px;">
-                                    Connessione a Google Sheets in corso... 🎀
+                                <td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">
+                                    Connessione a Google Sheets... 🎀
                                 </td>
                             </tr>
                         </tbody>
@@ -397,7 +376,7 @@
         var pesateHistory = [];
         var myChart = null;
 
-        // ⚠️ METTI QUI IL TUO URL DI GOOGLE APPS SCRIPT
+        // ⚠️ METTI QUI IL TUO URL DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzA3jdsRBKm0K9bX_lxzgwTQCHoKssR63eL3hC3VhwVmZpL9APhUdugCZ54_J36hODy/exec";
 
         function pulisciData(dataStr) {
@@ -428,7 +407,7 @@
             })
             .catch(function(error) {
                 console.error(error);
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600; padding: 20px;">Impossibile caricare lo storico da remoto. ❌</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600; padding: 20px;">Errore di caricamento dati. ❌</td></tr>';
             });
         }
 
@@ -483,7 +462,7 @@
                 body: JSON.stringify(formData)
             })
             .then(function() {
-                statusDiv.innerText = "Salvataggio eseguito su Google Sheets! 💖";
+                statusDiv.innerText = "Salvataggio eseguito con successo! 💖";
                 statusDiv.className = 'status-message status-success';
                 
                 document.getElementById('weight').value = '';
@@ -536,6 +515,9 @@
             var ctx = document.getElementById('growthChart').getContext('2d');
             if (myChart) { myChart.destroy(); }
 
+            // Calcola dinamicamente il corretto rapporto d'aspetto (aspectRatio) in base allo schermo del telefono
+            var isMobile = window.innerWidth < 600;
+
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -544,27 +526,27 @@
                         label: 'Peso (kg)',
                         data: chartWeights,
                         borderColor: '#ff758c',
-                        backgroundColor: 'rgba(255, 141, 161, 0.15)',
-                        borderWidth: 3,
+                        backgroundColor: 'rgba(255, 141, 161, 0.12)',
+                        borderWidth: 2.5,
                         pointBackgroundColor: '#ff4f6e',
                         pointHoverBackgroundColor: '#fff',
-                        pointRadius: 4,
-                        tension: 0.18
+                        pointRadius: isMobile ? 3 : 4,
+                        tension: 0.15
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    aspectRatio: 2,
+                    aspectRatio: isMobile ? 1.4 : 2, // Se mobile lo rende leggermente più quadrato per favorire la lettura
                     scales: {
                         y: {
                             beginAtZero: false,
                             grid: { color: '#fcedf0' },
-                            ticks: { color: '#8a7577' }
+                            ticks: { color: '#8a7577', font: { size: isMobile ? 10 : 12 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#8a7577', maxRotation: 45, minRotation: 45 }
+                            ticks: { color: '#8a7577', maxRotation: 45, minRotation: 45, font: { size: isMobile ? 9 : 12 } }
                         }
                     },
                     plugins: { legend: { display: false } }
