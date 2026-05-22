@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Peso di Baby</title>
-    <!-- Questa riga dice al telefono che è un'app installabile -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Peso Baby">
     
+    <!-- Carichiamo la libreria html2pdf per generare il PDF direttamente dal browser con stili e sfondi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
-            --primary-color: #ffb6c1; /* Rosa pastello neonati */
-            --background-color: #fff9fa; /* Sfondo morbido */
+            --primary-color: #ffb6c1; 
+            --background-color: #fff9fa; 
             --text-color: #5c4d4d;
             --card-bg: #ffffff;
         }
@@ -27,7 +29,7 @@
             background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
@@ -38,10 +40,16 @@
             border-radius: 30px;
             box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
             padding: 30px;
             text-align: center;
             border: 4px solid #ffe4e1;
+            margin-bottom: 30px;
+        }
+
+        .header-decor {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
 
         h1 {
@@ -111,6 +119,13 @@
             margin-top: 10px;
         }
 
+        .btn-pdf {
+            background: linear-gradient(135deg, #a0e7e5, #74d1cf);
+            box-shadow: 0 5px 15px rgba(160, 231, 229, 0.6);
+            margin-top: 20px;
+            color: #3d5a59;
+        }
+
         .status-message {
             margin-top: 20px;
             padding: 12px;
@@ -121,54 +136,196 @@
 
         .status-success { background-color: #e3fcef; color: #0e6245; display: block; }
         .status-error { background-color: #ffebe6; color: #bf2600; display: block; }
+
+        /* Stile della Tabella dei Riepiloghi */
+        .table-container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 25px;
+            padding: 20px;
+            border: 4px solid #ffe4e1;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.2);
+            overflow-x: auto;
+        }
+
+        .table-title {
+            color: #ff8da1;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ffe4e1;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #fff1f3;
+            color: #ff8da1;
+            font-weight: bold;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Stile nascosto per l'esportazione del PDF (Sfondo carino, icone e layout dedicato) */
+        #pdf-template {
+            display: none;
+        }
+
+        .pdf-page {
+            background-color: #fff9fa;
+            color: #5c4d4d;
+            padding: 40px;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            min-height: 100%;
+        }
+
+        .pdf-header {
+            text-align: center;
+            border-bottom: 3px dashed #ffb6c1;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .pdf-header h1 {
+            color: #ff8da1;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(255, 182, 193, 0.1);
+        }
+
+        .pdf-table th {
+            background-color: #ffb6c1;
+            color: white;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        .pdf-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ffe4e1;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
 
+    <!-- CONTAINER WEB APP -->
     <div class="app-container">
+        <div class="header-decor">👶🏼 🎀 🍼 ✨</div>
         <h1>Il Peso di Baby 🎀</h1>
         <div class="subtitle">Per Francesca • Registra la crescita con un click</div>
 
         <form id="weightForm">
             <div class="form-group">
-                <label for="date">Data e Ora della pesata</label>
+                <label for="date">📅 Data e Ora della pesata</label>
                 <input type="datetime-local" id="date" required>
             </div>
 
             <div class="form-group">
-                <label for="weight">Peso Esatto</label>
+                <label for="weight">⚖️ Peso Esatto</label>
                 <div class="weight-input-container">
-                    <!-- inputmode="decimal" apre subito i numeri grandi sulla tastiera del telefono -->
                     <input type="number" id="weight" step="0.001" min="0" placeholder="es. 3.450" inputmode="decimal" required>
                     <span class="weight-unit">kg</span>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="notes">Momento della pesata</label>
-                <!-- MODIFICATO: Ora è un menù a scelta fissa con le tue due opzioni -->
-                <select id="notes" required>
+                <label for="moment">🍼 Momento della pesata</label>
+                <select id="moment" required>
                     <option value="Prima della pesata">🍼 Prima della pesata</option>
                     <option value="Dopo la pesata">✨ Dopo la pesata</option>
                 </select>
+            </div>
+
+            <!-- NUOVO CAMPO: Testo libero per gli appunti di Fra -->
+            <div class="form-group">
+                <label for="notes">📝 Appunti e Note Libere</label>
+                <input type="text" id="notes" placeholder="Scrivi qui altri dettagli (es. nuda, tranquilla...)">
             </div>
 
             <button type="submit" id="submitBtn">Salva Pesata ✨</button>
         </form>
 
         <div id="status" class="status-message"></div>
+        
+        <!-- TASTO SCARICA PDF -->
+        <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Scarica PDF "Piccola Baby"</button>
+    </div>
+
+    <!-- TABELLA RIEPILOGO NELLA WEB APP -->
+    <div class="table-container">
+        <h2 class="table-title">📊 Riepilogo delle Pesate</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data e Ora</th>
+                    <th>Peso</th>
+                    <th>Momento</th>
+                    <th>Appunti/Note</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- I dati salvati compariranno qui dinamicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- STRUTTURA NASCOSTA PER GENERARE IL PDF BELLO E PERSONALIZZATO -->
+    <div id="pdf-template">
+        <div class="pdf-page">
+            <div class="pdf-header">
+                <h1>Piccola Baby 👶🏼🎀</h1>
+                <p>✨ Diario e Riepilogo delle Pesate della Nostra Piccola ✨</p>
+            </div>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th>Data e Ora</th>
+                        <th>Peso (kg)</th>
+                        <th>Momento</th>
+                        <th>Appunti e Note</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfTableBody">
+                    <!-- Copia speculare dei dati per il PDF -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        // Mette in automatico l'ora di adesso per non far perdere tempo a Francesca
+        // Array locale per tenere traccia delle pesate inserite nella sessione attuale
+        let pesateHistory = [];
+
+        // Imposta automaticamente la data e l'ora corrente
         window.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
         });
 
-        // Metti qui l'URL che ti darà Google quando distribuisci lo script
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
+        // Sostituisci questo con il tuo URL reale di Google Apps Script
+        const SCRIPT_URL = "INSERISCI_QUI_URL_GOOGLE_APPS_SCRIPT";
 
         document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -180,12 +337,33 @@
             submitBtn.innerText = 'Salvataggio in corso...';
             statusDiv.style.display = 'none';
 
+            const dateValue = document.getElementById('date').value;
+            const weightValue = document.getElementById('weight').value;
+            const momentValue = document.getElementById('moment').value;
+            const notesValue = document.getElementById('notes').value || "-";
+
+            // Formatta la data in modo leggibile per la tabella italiana (gg/mm/aaaa ore)
+            const d = new Date(dateValue);
+            const dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+
             const formData = {
-                date: document.getElementById('date').value,
-                weight: document.getElementById('weight').value,
-                notes: document.getElementById('notes').value
+                date: dateValue,
+                weight: weightValue,
+                notes: momentValue + " | " + notesValue  // Unisce i due campi per inviarli a Google Sheets in una colonna sola
             };
 
+            // Aggiungi all'elenco locale per aggiornare la tabella immediatamente
+            pesateHistory.push({
+                date: dataFormattata,
+                weight: parseFloat(weightValue).toFixed(3) + " kg",
+                moment: momentValue,
+                notes: notesValue
+            });
+
+            // Aggiorna le tabelle visiva e nascosta per il PDF
+            renderTables();
+
+            // Invio effettivo a Google Sheets
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -197,24 +375,69 @@
                 statusDiv.innerText = "Pesata salvata con successo nel foglio! 💖👶🏼";
                 statusDiv.className = 'status-message status-success';
                 
-                // Svuota il peso per la prossima volta
+                // Resetta i campi inserimento
                 document.getElementById('weight').value = '';
+                document.getElementById('notes').value = '';
                 
-                // Aggiorna l'ora a quella attuale
+                // Aggiorna ora corrente
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('date').value = now.toISOString().slice(0, 16);
             })
             .catch(error => {
                 console.error(error);
-                statusDiv.innerText = "Errore nel salvataggio. Riprova! ❌";
+                statusDiv.innerText = "Errore nel salvataggio sul foglio online, ma salvato in tabella! ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerText = 'Salva Pesata ✨';
+                submitBtn.innerHTML = 'Salva Pesata ✨';
+            });
+        });
+
+        // Funzione per aggiornare la tabella della Web App e del PDF
+        function renderTables() {
+            const tableBody = document.getElementById('tableBody');
+            const pdfTableBody = document.getElementById('pdfTableBody');
+            
+            tableBody.innerHTML = "";
+            pdfTableBody.innerHTML = "";
+
+            // Mostra le pesate partendo dalla più recente in alto
+            [...pesateHistory].reverse().forEach(p => {
+                const rowHtml = `<tr>
+                    <td>${p.date}</td>
+                    <strong><td>${p.weight}</td></strong>
+                    <td>${p.moment}</td>
+                    <td>${p.notes}</td>
+                </tr>`;
+                tableBody.innerHTML += rowHtml;
+                pdfTableBody.innerHTML += rowHtml;
+            });
+        }
+
+        // Funzione per generare e scaricare il PDF super carino con sfondo rosa e icone
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            const element = document.getElementById('pdf-template');
+            
+            // Mostriamo temporaneamente l'elemento per farlo leggere al convertitore
+            element.style.display = 'block';
+
+            const opt = {
+                margin:       10,
+                filename:     'Piccola_Baby.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Esegui la generazione del file
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Lo nascondiamo di nuovo ad esportazione ultimata
+                element.style.display = 'none';
             });
         });
     </script>
 </body>
 </html>
+
