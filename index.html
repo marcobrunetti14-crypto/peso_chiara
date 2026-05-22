@@ -174,16 +174,16 @@
             font-weight: bold;
         }
 
-        /* TRUCCO PER IL PDF: Spostato fuori dallo schermo visivo per la corretta lettura della libreria */
+        /* TRUCCO PER IL PDF: Compatibile al 100% con GitHub Pages */
         #pdf-template {
             position: absolute;
             left: -9999px;
             top: 0;
             width: 700px; 
+            background-color: #fff9fa;
         }
 
         .pdf-page {
-            background-color: #fff9fa;
             color: #5c4d4d;
             padding: 40px;
             font-family: 'Segoe UI', Roboto, sans-serif;
@@ -284,7 +284,7 @@
         </table>
     </div>
 
-    <!-- SCHERMATA SOLO PER GENERARE IL PDF COPIANDO I DATI -->
+    <!-- STRUTTURA DEL PDF (FUORI SCHERMO) -->
     <div id="pdf-template">
         <div class="pdf-page">
             <div class="pdf-header">
@@ -301,46 +301,45 @@
                     </tr>
                 </thead>
                 <tbody id="pdfTableBody">
-                    <!-- Copia dei dati per il PDF -->
+                    <!-- I dati per il PDF verranno inseriti qui -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Memorizza i dati inseriti sul momento
-        let pesateHistory = [];
+        var pesateHistory = [];
 
-        // Inserisce automaticamente l'orario attuale
-        window.addEventListener('DOMContentLoaded', () => {
-            const now = new Date();
+        // Imposta automaticamente l'ora attuale
+        window.addEventListener('DOMContentLoaded', function() {
+            var now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
         });
 
-        // ⚠️ SOSTITUISCI CON IL TUO URL DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
+        // ⚠️ INCOLLA QUI IL TUO URL DI GOOGLE APPS SCRIPT
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
 
         document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const submitBtn = document.getElementById('submitBtn');
-            const statusDiv = document.getElementById('status');
+            var submitBtn = document.getElementById('submitBtn');
+            var statusDiv = document.getElementById('status');
             
             submitBtn.disabled = true;
             submitBtn.innerText = 'Salvataggio in corso...';
             statusDiv.style.display = 'none';
 
-            const dateValue = document.getElementById('date').value;
-            const weightValue = document.getElementById('weight').value;
-            const momentValue = document.getElementById('moment').value;
-            const notesValue = document.getElementById('notes').value || "-";
+            var dateValue = document.getElementById('date').value;
+            var weightValue = document.getElementById('weight').value;
+            var momentValue = document.getElementById('moment').value;
+            var notesValue = document.getElementById('notes').value || "-";
 
-            // Formattazione data italiana
-            const d = new Date(dateValue);
-            const dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+            // Formatta la data per lo schermo
+            var d = new Date(dateValue);
+            var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            // Inserisce i dati nell'array storico locale
+            // Salva nello storico locale
             pesateHistory.push({
                 date: dataFormattata,
                 weight: parseFloat(weightValue).toFixed(3) + " kg",
@@ -348,85 +347,121 @@
                 notes: notesValue
             });
 
-            // Mostra subito i dati nelle tabelle
+            // Aggiorna subito le tabelle con il nuovo metodo sicuro per GitHub
             renderTables();
 
-            const formData = {
+            // Prepara i dati per Google Sheets
+            var formData = {
                 date: dateValue,
                 weight: weightValue,
                 notes: momentValue + " | " + notesValue
             };
 
-            // Spedisce a Google Sheets
+            // Invia i dati a Google in background
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
+                redirect: 'follow',
                 body: JSON.stringify(formData)
             })
-            .then(() => {
-                statusDiv.innerText = "Pesata salvata con successo nel foglio! 💖👶🏼";
+            .then(function() {
+                statusDiv.innerText = "Pesata salvata con successo! 💖👶🏼";
                 statusDiv.className = 'status-message status-success';
                 
-                // Pulisce i campi compilati
+                // Pulisce i campi
                 document.getElementById('weight').value = '';
                 document.getElementById('notes').value = '';
                 
-                // Aggiorna l'ora corrente
-                const now = new Date();
+                // Aggiorna l'orario
+                var now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('date').value = now.toISOString().slice(0, 16);
             })
-            .catch(error => {
+            .catch(function(error) {
                 console.error(error);
-                statusDiv.innerText = "Salvataggio online non riuscito, ma aggiunto nel riepilogo in basso! ❌";
+                statusDiv.innerText = "Salvato nel riepilogo! (Nota: Google Sheets offline). ❌";
                 statusDiv.className = 'status-message status-error';
             })
-            .finally(() => {
+            .finally(function() {
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'Salva Pesata ✨';
             });
         });
 
-        // Compila graficamente il riepilogo e la pagina PDF nascosta
+        // METODO DOM PURO: A prova di errore su GitHub Pages
         function renderTables() {
-            const tableBody = document.getElementById('tableBody');
-            const pdfTableBody = document.getElementById('pdfTableBody');
+            var tableBody = document.getElementById('tableBody');
+            var pdfTableBody = document.getElementById('pdfTableBody');
             
             tableBody.innerHTML = "";
             pdfTableBody.innerHTML = "";
 
-            // Ordina la cronologia inserendo le ultime novità in alto
-            const sortedHistory = [...pesateHistory].reverse();
-
-            sortedHistory.forEach(function(p) {
-                const rowHtml = "<tr>" +
-                    "<td>" + p.date + "</td>" +
-                    "<td><strong>" + p.weight + "</strong></td>" +
-                    "<td>" + p.moment + "</td>" +
-                    "<td>" + p.notes + "</td>" +
-                "</tr>";
+            // Mostra l'ultimo inserito in alto
+            for (var i = pesateHistory.length - 1; i >= 0; i--) {
+                var p = pesateHistory[i];
                 
-                tableBody.innerHTML += rowHtml;
-                pdfTableBody.innerHTML += rowHtml;
-            });
+                // Crea la riga per la tabella web
+                var rowWeb = document.createElement('tr');
+                
+                var tdDateWeb = document.createElement('td');
+                tdDateWeb.textContent = p.date;
+                rowWeb.appendChild(tdDateWeb);
+                
+                var tdWeightWeb = document.createElement('td');
+                var strongWeightWeb = document.createElement('strong');
+                strongWeightWeb.textContent = p.weight;
+                tdWeightWeb.appendChild(strongWeightWeb);
+                rowWeb.appendChild(tdWeightWeb);
+                
+                var tdMomentWeb = document.createElement('td');
+                tdMomentWeb.textContent = p.moment;
+                rowWeb.appendChild(tdMomentWeb);
+                
+                var tdNotesWeb = document.createElement('td');
+                tdNotesWeb.textContent = p.notes;
+                rowWeb.appendChild(tdNotesWeb);
+                
+                tableBody.appendChild(rowWeb);
+
+                // Crea la riga identica per la tabella del PDF
+                var rowPdf = document.createElement('tr');
+                
+                var tdDatePdf = document.createElement('td');
+                tdDatePdf.textContent = p.date;
+                rowPdf.appendChild(tdDatePdf);
+                
+                var tdWeightPdf = document.createElement('td');
+                var strongWeightPdf = document.createElement('strong');
+                strongWeightPdf.textContent = p.weight;
+                tdWeightPdf.appendChild(strongWeightPdf);
+                rowPdf.appendChild(tdWeightPdf);
+                
+                var tdMomentPdf = document.createElement('td');
+                tdMomentPdf.textContent = p.moment;
+                rowPdf.appendChild(tdMomentPdf);
+                
+                var tdNotesPdf = document.createElement('td');
+                tdNotesPdf.textContent = p.notes;
+                rowPdf.appendChild(tdNotesPdf);
+                
+                pdfTableBody.appendChild(rowPdf);
+            }
         }
 
-        // Scarica il file PDF leggendo la tabella
+        // Genera il PDF
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            const element = document.getElementById('pdf-template');
-            
             if (pesateHistory.length === 0) {
-                alert("Non ci sono ancora pesate inserite nella tabella! Aggiungi una pesata prima di scaricare il PDF. 👶🏼");
+                alert("Non ci sono ancora pesate nel riepilogo da scaricare! Fai prima una prova inserendo una pesata. 👶🏼");
                 return;
             }
 
-            const opt = {
+            var element = document.getElementById('pdf-template');
+            var opt = {
                 margin:       10,
                 filename:     'Piccola_Baby.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
