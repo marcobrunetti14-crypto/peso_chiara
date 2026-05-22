@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Peso Baby">
     
-    <!-- Carichiamo la libreria html2pdf per generare il PDF direttamente dal browser con stili e sfondi -->
+    <!-- Libreria html2pdf per scaricare il PDF direttamente dal telefono -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -137,7 +137,7 @@
         .status-success { background-color: #e3fcef; color: #0e6245; display: block; }
         .status-error { background-color: #ffebe6; color: #bf2600; display: block; }
 
-        /* Stile della Tabella dei Riepiloghi */
+        /* Stile Tabella di Riepilogo nell'App */
         .table-container {
             width: 100%;
             max-width: 600px;
@@ -174,13 +174,12 @@
             font-weight: bold;
         }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Stile nascosto per l'esportazione del PDF (Sfondo carino, icone e layout dedicato) */
+        /* TRUCCO PER IL PDF: Lo spostiamo fuori dallo schermo così il convertitore lo legge pieno, ma l'utente non lo vede doppio */
         #pdf-template {
-            display: none;
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 700px; 
         }
 
         .pdf-page {
@@ -188,7 +187,6 @@
             color: #5c4d4d;
             padding: 40px;
             font-family: 'Segoe UI', Roboto, sans-serif;
-            min-height: 100%;
         }
 
         .pdf-header {
@@ -200,28 +198,25 @@
 
         .pdf-header h1 {
             color: #ff8da1;
-            font-size: 2.8rem;
-            margin-bottom: 10px;
+            font-size: 2.6rem;
+            margin-bottom: 8px;
         }
 
         .pdf-table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(255, 182, 193, 0.1);
         }
 
         .pdf-table th {
             background-color: #ffb6c1;
             color: white;
-            padding: 15px;
+            padding: 14px;
             font-size: 1.1rem;
         }
 
         .pdf-table td {
-            padding: 15px;
+            padding: 14px;
             border-bottom: 1px solid #ffe4e1;
             font-size: 1rem;
         }
@@ -229,7 +224,7 @@
 </head>
 <body>
 
-    <!-- CONTAINER WEB APP -->
+    <!-- INTERFACCIA WEB APP -->
     <div class="app-container">
         <div class="header-decor">👶🏼 🎀 🍼 ✨</div>
         <h1>Il Peso di Baby 🎀</h1>
@@ -257,7 +252,6 @@
                 </select>
             </div>
 
-            <!-- NUOVO CAMPO: Testo libero per gli appunti di Fra -->
             <div class="form-group">
                 <label for="notes">📝 Appunti e Note Libere</label>
                 <input type="text" id="notes" placeholder="Scrivi qui altri dettagli (es. nuda, tranquilla...)">
@@ -272,7 +266,7 @@
         <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Scarica PDF "Piccola Baby"</button>
     </div>
 
-    <!-- TABELLA RIEPILOGO NELLA WEB APP -->
+    <!-- TABELLA RIEPILOGO NELL'APP -->
     <div class="table-container">
         <h2 class="table-title">📊 Riepilogo delle Pesate</h2>
         <table>
@@ -285,12 +279,12 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- I dati salvati compariranno qui dinamicamente -->
+                <!-- I dati salvati compariranno qui in tempo reale -->
             </tbody>
         </table>
     </div>
 
-    <!-- STRUTTURA NASCOSTA PER GENERARE IL PDF BELLO E PERSONALIZZATO -->
+    <!-- SCHERMATA NASCOSTA (SPOSTATA) SOLO PER LA GENERAZIONE DEL PDF -->
     <div id="pdf-template">
         <div class="pdf-page">
             <div class="pdf-header">
@@ -307,24 +301,24 @@
                     </tr>
                 </thead>
                 <tbody id="pdfTableBody">
-                    <!-- Copia speculare dei dati per il PDF -->
+                    <!-- Copia dei dati per il PDF -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Array locale per tenere traccia delle pesate inserite nella sessione attuale
+        // Array per conservare i dati inseriti durante la sessione attuale
         let pesateHistory = [];
 
-        // Imposta automaticamente la data e l'ora corrente
+        // Imposta l'ora corrente in automatico all'apertura dell'applicazione
         window.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
         });
 
-        // Sostituisci questo con il tuo URL reale di Google Apps Script
+        // ⚠️ INCOLLA QUI IL TUO LINK DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
 
         document.getElementById('weightForm').addEventListener('submit', function(e) {
@@ -342,17 +336,11 @@
             const momentValue = document.getElementById('moment').value;
             const notesValue = document.getElementById('notes').value || "-";
 
-            // Formatta la data in modo leggibile per la tabella italiana (gg/mm/aaaa ore)
+            // Formattazione data italiana ordinata
             const d = new Date(dateValue);
             const dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            const formData = {
-                date: dateValue,
-                weight: weightValue,
-                notes: momentValue + " | " + notesValue  // Unisce i due campi per inviarli a Google Sheets in una colonna sola
-            };
-
-            // Aggiungi all'elenco locale per aggiornare la tabella immediatamente
+            // Aggiorna l'elenco locale
             pesateHistory.push({
                 date: dataFormattata,
                 weight: parseFloat(weightValue).toFixed(3) + " kg",
@@ -360,10 +348,17 @@
                 notes: notesValue
             });
 
-            // Aggiorna le tabelle visiva e nascosta per il PDF
+            // Scrive subito i dati nelle tabelle visiva e PDF
             renderTables();
 
-            // Invio effettivo a Google Sheets
+            // Costruisce i dati da mandare a Google Sheets
+            const formData = {
+                date: dateValue,
+                weight: weightValue,
+                notes: momentValue + " | " + notesValue
+            };
+
+            // Invio dati sul cloud Google
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -375,27 +370,27 @@
                 statusDiv.innerText = "Pesata salvata con successo nel foglio! 💖👶🏼";
                 statusDiv.className = 'status-message status-success';
                 
-                // Resetta i campi inserimento
+                // Svuota solo il peso e le note scritte a mano
                 document.getElementById('weight').value = '';
                 document.getElementById('notes').value = '';
                 
-                // Aggiorna ora corrente
+                // Reimposta l'ora all'istante attuale
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('date').value = now.toISOString().slice(0, 16);
             })
             .catch(error => {
                 console.error(error);
-                statusDiv.innerText = "Errore nel salvataggio sul foglio online, ma salvato in tabella! ❌";
+                statusDiv.innerText = "Errore di connessione online, ma i dati li vedi memorizzati qui sotto! ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Salva Pesata ✨';
+                submitBtn.innerText = 'Salva Pesata ✨';
             });
         });
 
-        // Funzione per aggiornare la tabella della Web App e del PDF
+        // Funzione per generare le righe HTML corrette in entrambe le tabelle
         function renderTables() {
             const tableBody = document.getElementById('tableBody');
             const pdfTableBody = document.getElementById('pdfTableBody');
@@ -403,25 +398,31 @@
             tableBody.innerHTML = "";
             pdfTableBody.innerHTML = "";
 
-            // Mostra le pesate partendo dalla più recente in alto
-            [...pesateHistory].reverse().forEach(p => {
+            // Mostra l'ultimo dato inserito sempre in cima alla lista
+            const sortedHistory = [...pesateHistory].reverse();
+
+            sortedHistory.forEach(p => {
                 const rowHtml = `<tr>
                     <td>${p.date}</td>
-                    <strong><td>${p.weight}</td></strong>
+                    <td><strong>${p.weight}</strong></td>
                     <td>${p.moment}</td>
                     <td>${p.notes}</td>
                 </tr>`;
+                
                 tableBody.innerHTML += rowHtml;
                 pdfTableBody.innerHTML += rowHtml;
             });
         }
 
-        // Funzione per generare e scaricare il PDF super carino con sfondo rosa e icone
+        // Funzione corretta per scaricare il PDF leggendo la struttura fuori dallo schermo
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             const element = document.getElementById('pdf-template');
             
-            // Mostriamo temporaneamente l'elemento per farlo leggere al convertitore
-            element.style.display = 'block';
+            // Se non ci sono dati, avverte Francesca per evitare fogli vuoti
+            if (pesateHistory.length === 0) {
+                alert("Non ci sono ancora pesate inserite! Aggiungi una pesata prima di generare il PDF. 👶🏼");
+                return;
+            }
 
             const opt = {
                 margin:       10,
@@ -431,13 +432,9 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Esegui la generazione del file
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Lo nascondiamo di nuovo ad esportazione ultimata
-                element.style.display = 'none';
-            });
+            // Avvia lo scaricamento automatico
+            html2pdf().set(opt).from(element).save();
         });
     </script>
 </body>
 </html>
-
