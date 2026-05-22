@@ -174,7 +174,7 @@
             font-weight: bold;
         }
 
-        /* TRUCCO PER IL PDF: Lo spostiamo fuori dallo schermo così il convertitore lo legge pieno, ma l'utente non lo vede doppio */
+        /* TRUCCO PER IL PDF: Spostato fuori dallo schermo visivo per la corretta lettura della libreria */
         #pdf-template {
             position: absolute;
             left: -9999px;
@@ -279,12 +279,12 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- I dati salvati compariranno qui in tempo reale -->
+                <!-- I dati salvati compariranno qui -->
             </tbody>
         </table>
     </div>
 
-    <!-- SCHERMATA NASCOSTA (SPOSTATA) SOLO PER LA GENERAZIONE DEL PDF -->
+    <!-- SCHERMATA SOLO PER GENERARE IL PDF COPIANDO I DATI -->
     <div id="pdf-template">
         <div class="pdf-page">
             <div class="pdf-header">
@@ -308,17 +308,17 @@
     </div>
 
     <script>
-        // Array per conservare i dati inseriti durante la sessione attuale
+        // Memorizza i dati inseriti sul momento
         let pesateHistory = [];
 
-        // Imposta l'ora corrente in automatico all'apertura dell'applicazione
+        // Inserisce automaticamente l'orario attuale
         window.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
         });
 
-        // ⚠️ INCOLLA QUI IL TUO LINK DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
+        // ⚠️ SOSTITUISCI CON IL TUO URL DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
 
         document.getElementById('weightForm').addEventListener('submit', function(e) {
@@ -336,11 +336,11 @@
             const momentValue = document.getElementById('moment').value;
             const notesValue = document.getElementById('notes').value || "-";
 
-            // Formattazione data italiana ordinata
+            // Formattazione data italiana
             const d = new Date(dateValue);
             const dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            // Aggiorna l'elenco locale
+            // Inserisce i dati nell'array storico locale
             pesateHistory.push({
                 date: dataFormattata,
                 weight: parseFloat(weightValue).toFixed(3) + " kg",
@@ -348,17 +348,16 @@
                 notes: notesValue
             });
 
-            // Scrive subito i dati nelle tabelle visiva e PDF
+            // Mostra subito i dati nelle tabelle
             renderTables();
 
-            // Costruisce i dati da mandare a Google Sheets
             const formData = {
                 date: dateValue,
                 weight: weightValue,
                 notes: momentValue + " | " + notesValue
             };
 
-            // Invio dati sul cloud Google
+            // Spedisce a Google Sheets
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -370,18 +369,18 @@
                 statusDiv.innerText = "Pesata salvata con successo nel foglio! 💖👶🏼";
                 statusDiv.className = 'status-message status-success';
                 
-                // Svuota solo il peso e le note scritte a mano
+                // Pulisce i campi compilati
                 document.getElementById('weight').value = '';
                 document.getElementById('notes').value = '';
                 
-                // Reimposta l'ora all'istante attuale
+                // Aggiorna l'ora corrente
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('date').value = now.toISOString().slice(0, 16);
             })
             .catch(error => {
                 console.error(error);
-                statusDiv.innerText = "Errore di connessione online, ma i dati li vedi memorizzati qui sotto! ❌";
+                statusDiv.innerText = "Salvataggio online non riuscito, ma aggiunto nel riepilogo in basso! ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(() => {
@@ -390,7 +389,7 @@
             });
         });
 
-        // Funzione per generare le righe HTML corrette in entrambe le tabelle
+        // Compila graficamente il riepilogo e la pagina PDF nascosta
         function renderTables() {
             const tableBody = document.getElementById('tableBody');
             const pdfTableBody = document.getElementById('pdfTableBody');
@@ -398,29 +397,28 @@
             tableBody.innerHTML = "";
             pdfTableBody.innerHTML = "";
 
-            // Mostra l'ultimo dato inserito sempre in cima alla lista
+            // Ordina la cronologia inserendo le ultime novità in alto
             const sortedHistory = [...pesateHistory].reverse();
 
-            sortedHistory.forEach(p => {
-                const rowHtml = `<tr>
-                    <td>${p.date}</td>
-                    <td><strong>${p.weight}</strong></td>
-                    <td>${p.moment}</td>
-                    <td>${p.notes}</td>
-                </tr>`;
+            sortedHistory.forEach(function(p) {
+                const rowHtml = "<tr>" +
+                    "<td>" + p.date + "</td>" +
+                    "<td><strong>" + p.weight + "</strong></td>" +
+                    "<td>" + p.moment + "</td>" +
+                    "<td>" + p.notes + "</td>" +
+                "</tr>";
                 
                 tableBody.innerHTML += rowHtml;
                 pdfTableBody.innerHTML += rowHtml;
             });
         }
 
-        // Funzione corretta per scaricare il PDF leggendo la struttura fuori dallo schermo
+        // Scarica il file PDF leggendo la tabella
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             const element = document.getElementById('pdf-template');
             
-            // Se non ci sono dati, avverte Francesca per evitare fogli vuoti
             if (pesateHistory.length === 0) {
-                alert("Non ci sono ancora pesate inserite! Aggiungi una pesata prima di generare il PDF. 👶🏼");
+                alert("Non ci sono ancora pesate inserite nella tabella! Aggiungi una pesata prima di scaricare il PDF. 👶🏼");
                 return;
             }
 
@@ -432,7 +430,6 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Avvia lo scaricamento automatico
             html2pdf().set(opt).from(element).save();
         });
     </script>
