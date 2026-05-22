@@ -170,7 +170,6 @@
             font-weight: bold;
         }
 
-        /* STILI SPECIFICI PER LA STAMPA PDF PULITA E ROSA */
         @media print {
             body {
                 background-color: #fff9fa !important;
@@ -179,7 +178,7 @@
                 padding: 0;
             }
             .app-container {
-                display: none !important; /* Nasconde il form nel PDF */
+                display: none !important;
             }
             .table-container {
                 box-shadow: none !important;
@@ -253,22 +252,50 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                </tbody>
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #bfa3a3;">Caricamento storico pesate... 🎀</td>
+                </tr>
+            </tbody>
         </table>
     </div>
 
     <script>
         var pesateHistory = [];
 
-        // Imposta automaticamente l'ora attuale
+        // ⚠️ INCOLLA QUI IL NUOVO URL DI GOOGLE APPS SCRIPT
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWCB4oT6a7RDsQ2Uj9OqZMrTI6dKPohqg2twjd9A5C9w6LJbwuhjdWV1KRZRvwuIqN/exec";
+
+        // Funzione per caricare lo storico all'apertura dell'app
+        function caricaStoricoDaGoogle() {
+            var tableBody = document.getElementById('tableBody');
+            
+            fetch(SCRIPT_URL)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if(data && data.length > 0) {
+                    pesateHistory = data;
+                    renderTables();
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3;">Nessuna pesata salvata nel foglio. Inserisci la prima! 👶🏼</td></tr>';
+                }
+            })
+            .catch(function(error) {
+                console.error(error);
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600;">Impossibile caricare i vecchi dati. Controlla il link di Google. ❌</td></tr>';
+            });
+        }
+
+        // Imposta automaticamente l'ora attuale e carica i dati storici
         window.addEventListener('DOMContentLoaded', function() {
             var now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
+            
+            // Avvia la lettura automatica dallo Sheet
+            caricaStoricoDaGoogle();
         });
-
-        // ⚠️ METTI QUI IL TUO URL DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
-        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
 
         document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -288,14 +315,15 @@
             var d = new Date(dateValue);
             var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            // Salvataggio immediato locale sulla tabella visibile
-            pesateHistory.push({
+            // Prepara l'oggetto per lo schermo e lo inserisce temporaneamente in cima
+            var nuovaPesata = {
                 date: dataFormattata,
                 weight: parseFloat(weightValue).toFixed(3) + " kg",
                 moment: momentValue,
                 notes: notesValue
-            });
-
+            };
+            
+            pesateHistory.unshift(nuovaPesata);
             renderTables();
 
             var formData = {
@@ -324,7 +352,7 @@
             })
             .catch(function(error) {
                 console.error(error);
-                statusDiv.innerText = "Aggiunto nel riepilogo in basso! ❌ (Google offline)";
+                statusDiv.innerText = "Problema di rete, ricarica la pagina. ❌";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(function() {
@@ -337,7 +365,8 @@
             var tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = "";
 
-            for (var i = pesateHistory.length - 1; i >= 0; i--) {
+            // Il server ci dà già l'ordine corretto, lo cicliamo normalmente
+            for (var i = 0; i < pesateHistory.length; i++) {
                 var p = pesateHistory[i];
                 
                 var row = document.createElement('tr');
@@ -364,24 +393,21 @@
             }
         }
 
-        // Sistema nativo di salvataggio PDF super leggero e compatibile al 100% con i telefoni
+        // Scarica PDF nativo
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             if (pesateHistory.length === 0) {
-                alert("Non ci sono ancora pesate nel riepilogo da scaricare! Fai prima una prova inserendo una pesata. 👶🏼");
+                alert("Non ci sono pesate da scaricare!");
                 return;
             }
 
             var titoloOriginale = document.getElementById('mainTitle').innerText;
             document.getElementById('mainTitle').innerText = "Piccola Baby 👶🏼🎀";
             
-            // Imposta il titolo del file salvato sul dispositivo
             var titoloDocumentoOriginale = document.title;
             document.title = "Piccola_Baby";
 
-            // Apre la finestra nativa di stampa del telefono/PC pre-impostata carina in rosa
             window.print();
 
-            // Ripristina l'interfaccia normale dopo lo scaricamento
             document.getElementById('mainTitle').innerText = titoloOriginale;
             document.title = titoloDocumentoOriginale;
         });
