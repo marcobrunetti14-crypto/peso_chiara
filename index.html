@@ -6,9 +6,6 @@
     <title>Il Peso di Baby</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Peso Baby">
-    
-    <!-- Libreria html2pdf per scaricare il PDF direttamente dal telefono -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -137,7 +134,6 @@
         .status-success { background-color: #e3fcef; color: #0e6245; display: block; }
         .status-error { background-color: #ffebe6; color: #bf2600; display: block; }
 
-        /* Stile Tabella di Riepilogo nell'App */
         .table-container {
             width: 100%;
             max-width: 600px;
@@ -174,57 +170,37 @@
             font-weight: bold;
         }
 
-        /* TRUCCO PER IL PDF: Compatibile al 100% con GitHub Pages */
-        #pdf-template {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 700px; 
-            background-color: #fff9fa;
-        }
-
-        .pdf-page {
-            color: #5c4d4d;
-            padding: 40px;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
-
-        .pdf-header {
-            text-align: center;
-            border-bottom: 3px dashed #ffb6c1;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        .pdf-header h1 {
-            color: #ff8da1;
-            font-size: 2.6rem;
-            margin-bottom: 8px;
-        }
-
-        .pdf-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        .pdf-table th {
-            background-color: #ffb6c1;
-            color: white;
-            padding: 14px;
-            font-size: 1.1rem;
-        }
-
-        .pdf-table td {
-            padding: 14px;
-            border-bottom: 1px solid #ffe4e1;
-            font-size: 1rem;
+        /* STILI SPECIFICI PER LA STAMPA PDF PULITA E ROSA */
+        @media print {
+            body {
+                background-color: #fff9fa !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 0;
+            }
+            .app-container {
+                display: none !important; /* Nasconde il form nel PDF */
+            }
+            .table-container {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+            .table-title {
+                font-size: 2rem !important;
+                margin-bottom: 20px !important;
+            }
+            th {
+                background-color: #ffb6c1 !important;
+                color: white !important;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- INTERFACCIA WEB APP -->
     <div class="app-container">
         <div class="header-decor">👶🏼 🎀 🍼 ✨</div>
         <h1>Il Peso di Baby 🎀</h1>
@@ -262,13 +238,11 @@
 
         <div id="status" class="status-message"></div>
         
-        <!-- TASTO SCARICA PDF -->
         <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Scarica PDF "Piccola Baby"</button>
     </div>
 
-    <!-- TABELLA RIEPILOGO NELL'APP -->
-    <div class="table-container">
-        <h2 class="table-title">📊 Riepilogo delle Pesate</h2>
+    <div class="table-container" id="printableTable">
+        <h2 class="table-title" id="mainTitle">📊 Riepilogo delle Pesate</h2>
         <table>
             <thead>
                 <tr>
@@ -279,32 +253,8 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- I dati salvati compariranno qui -->
-            </tbody>
-        </table>
-    </div>
-
-    <!-- STRUTTURA DEL PDF (FUORI SCHERMO) -->
-    <div id="pdf-template">
-        <div class="pdf-page">
-            <div class="pdf-header">
-                <h1>Piccola Baby 👶🏼🎀</h1>
-                <p>✨ Diario e Riepilogo delle Pesate della Nostra Piccola ✨</p>
-            </div>
-            <table class="pdf-table">
-                <thead>
-                    <tr>
-                        <th>Data e Ora</th>
-                        <th>Peso (kg)</th>
-                        <th>Momento</th>
-                        <th>Appunti e Note</th>
-                    </tr>
-                </thead>
-                <tbody id="pdfTableBody">
-                    <!-- I dati per il PDF verranno inseriti qui -->
                 </tbody>
-            </table>
-        </div>
+        </table>
     </div>
 
     <script>
@@ -317,7 +267,7 @@
             document.getElementById('date').value = now.toISOString().slice(0, 16);
         });
 
-        // ⚠️ INCOLLA QUI IL TUO URL DI GOOGLE APPS SCRIPT
+        // ⚠️ METTI QUI IL TUO URL DI GOOGLE APPS SCRIPT FRA LE VIRGOLETTE
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4BuzuFL1EJVprL1269JoCCWMhNgcKa6VmuKyTPb65uwKa08TvwAhDqypzm5vcyLSe/exec";
 
         document.getElementById('weightForm').addEventListener('submit', function(e) {
@@ -335,11 +285,10 @@
             var momentValue = document.getElementById('moment').value;
             var notesValue = document.getElementById('notes').value || "-";
 
-            // Formatta la data per lo schermo
             var d = new Date(dateValue);
             var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            // Salva nello storico locale
+            // Salvataggio immediato locale sulla tabella visibile
             pesateHistory.push({
                 date: dataFormattata,
                 weight: parseFloat(weightValue).toFixed(3) + " kg",
@@ -347,17 +296,14 @@
                 notes: notesValue
             });
 
-            // Aggiorna subito le tabelle con il nuovo metodo sicuro per GitHub
             renderTables();
 
-            // Prepara i dati per Google Sheets
             var formData = {
                 date: dateValue,
                 weight: weightValue,
                 notes: momentValue + " | " + notesValue
             };
 
-            // Invia i dati a Google in background
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -366,21 +312,19 @@
                 body: JSON.stringify(formData)
             })
             .then(function() {
-                statusDiv.innerText = "Pesata salvata con successo! 💖👶🏼";
+                statusDiv.innerText = "Pesata salvata con successo nel foglio online! 💖👶🏼";
                 statusDiv.className = 'status-message status-success';
                 
-                // Pulisce i campi
                 document.getElementById('weight').value = '';
                 document.getElementById('notes').value = '';
                 
-                // Aggiorna l'orario
                 var now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('date').value = now.toISOString().slice(0, 16);
             })
             .catch(function(error) {
                 console.error(error);
-                statusDiv.innerText = "Salvato nel riepilogo! (Nota: Google Sheets offline). ❌";
+                statusDiv.innerText = "Aggiunto nel riepilogo in basso! ❌ (Google offline)";
                 statusDiv.className = 'status-message status-error';
             })
             .finally(function() {
@@ -389,83 +333,57 @@
             });
         });
 
-        // METODO DOM PURO: A prova di errore su GitHub Pages
         function renderTables() {
             var tableBody = document.getElementById('tableBody');
-            var pdfTableBody = document.getElementById('pdfTableBody');
-            
             tableBody.innerHTML = "";
-            pdfTableBody.innerHTML = "";
 
-            // Mostra l'ultimo inserito in alto
             for (var i = pesateHistory.length - 1; i >= 0; i--) {
                 var p = pesateHistory[i];
                 
-                // Crea la riga per la tabella web
-                var rowWeb = document.createElement('tr');
+                var row = document.createElement('tr');
                 
-                var tdDateWeb = document.createElement('td');
-                tdDateWeb.textContent = p.date;
-                rowWeb.appendChild(tdDateWeb);
+                var tdDate = document.createElement('td');
+                tdDate.textContent = p.date;
+                row.appendChild(tdDate);
                 
-                var tdWeightWeb = document.createElement('td');
-                var strongWeightWeb = document.createElement('strong');
-                strongWeightWeb.textContent = p.weight;
-                tdWeightWeb.appendChild(strongWeightWeb);
-                rowWeb.appendChild(tdWeightWeb);
+                var tdWeight = document.createElement('td');
+                var strong = document.createElement('strong');
+                strong.textContent = p.weight;
+                tdWeight.appendChild(strong);
+                row.appendChild(tdWeight);
                 
-                var tdMomentWeb = document.createElement('td');
-                tdMomentWeb.textContent = p.moment;
-                rowWeb.appendChild(tdMomentWeb);
+                var tdMoment = document.createElement('td');
+                tdMoment.textContent = p.moment;
+                row.appendChild(tdMoment);
                 
-                var tdNotesWeb = document.createElement('td');
-                tdNotesWeb.textContent = p.notes;
-                rowWeb.appendChild(tdNotesWeb);
+                var tdNotes = document.createElement('td');
+                tdNotes.textContent = p.notes;
+                row.appendChild(tdNotes);
                 
-                tableBody.appendChild(rowWeb);
-
-                // Crea la riga identica per la tabella del PDF
-                var rowPdf = document.createElement('tr');
-                
-                var tdDatePdf = document.createElement('td');
-                tdDatePdf.textContent = p.date;
-                rowPdf.appendChild(tdDatePdf);
-                
-                var tdWeightPdf = document.createElement('td');
-                var strongWeightPdf = document.createElement('strong');
-                strongWeightPdf.textContent = p.weight;
-                tdWeightPdf.appendChild(strongWeightPdf);
-                rowPdf.appendChild(tdWeightPdf);
-                
-                var tdMomentPdf = document.createElement('td');
-                tdMomentPdf.textContent = p.moment;
-                rowPdf.appendChild(tdMomentPdf);
-                
-                var tdNotesPdf = document.createElement('td');
-                tdNotesPdf.textContent = p.notes;
-                rowPdf.appendChild(tdNotesPdf);
-                
-                pdfTableBody.appendChild(rowPdf);
+                tableBody.appendChild(row);
             }
         }
 
-        // Genera il PDF
+        // Sistema nativo di salvataggio PDF super leggero e compatibile al 100% con i telefoni
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             if (pesateHistory.length === 0) {
                 alert("Non ci sono ancora pesate nel riepilogo da scaricare! Fai prima una prova inserendo una pesata. 👶🏼");
                 return;
             }
 
-            var element = document.getElementById('pdf-template');
-            var opt = {
-                margin:       10,
-                filename:     'Piccola_Baby.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            var titoloOriginale = document.getElementById('mainTitle').innerText;
+            document.getElementById('mainTitle').innerText = "Piccola Baby 👶🏼🎀";
+            
+            // Imposta il titolo del file salvato sul dispositivo
+            var titoloDocumentoOriginale = document.title;
+            document.title = "Piccola_Baby";
 
-            html2pdf().set(opt).from(element).save();
+            // Apre la finestra nativa di stampa del telefono/PC pre-impostata carina in rosa
+            window.print();
+
+            // Ripristina l'interfaccia normale dopo lo scaricamento
+            document.getElementById('mainTitle').innerText = titoloOriginale;
+            document.title = titoloDocumentoOriginale;
         });
     </script>
 </body>
