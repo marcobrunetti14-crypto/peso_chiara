@@ -59,7 +59,7 @@
             font-weight: 800;
         }
 
-        /* SCHERMATA SELEZIONE INIZIALE (LOGIN-DASHBOARD) */
+        /* SCHERMATA SELEZIONE INIZIALE */
         #login-screen {
             display: flex;
             flex-direction: column;
@@ -68,13 +68,13 @@
             width: 100%;
             max-width: 500px;
             gap: 20px;
-            margin-top: 30px;
+            margin-top: 10px;
         }
 
         .choice-card {
             background: var(--card-bg);
             border-radius: 24px;
-            padding: 30px 20px;
+            padding: 25px 20px;
             width: 100%;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.04);
@@ -83,22 +83,33 @@
             border: 2px solid transparent;
         }
 
-        .choice-card:active {
-            transform: scale(0.98);
-        }
-
+        .choice-card:active { transform: scale(0.98); }
         .choice-card.choice-peso { border-color: rgba(255, 141, 161, 0.3); }
         .choice-card.choice-latte { border-color: rgba(93, 169, 233, 0.3); }
 
-        .choice-card icon { display: block; font-size: 3rem; margin-bottom: 10px; }
-        .choice-card h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 5px; }
+        .choice-card icon { display: block; font-size: 2.8rem; margin-bottom: 10px; }
+        .choice-card h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; }
         .choice-card.choice-peso h2 { color: var(--primary-color); }
         .choice-card.choice-latte h2 { color: var(--milk-color); }
         .choice-card p { font-size: 0.9rem; color: #8c7b7b; }
 
+        /* BOX PDF NELLA SCHERMATA DI LOGIN */
+        .pdf-login-box {
+            background: linear-gradient(135deg, #ffffff, #fffdfd);
+            border: 2px dashed #4cb0ae;
+            border-radius: 24px;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(76, 176, 174, 0.05);
+        }
+        .pdf-login-box h3 { font-size: 1.1rem; color: #3a8a88; margin-bottom: 5px; font-weight: 700; }
+        .pdf-login-box p { font-size: 0.85rem; color: #6a7e7d; margin-bottom: 15px; }
+
         /* NAVIGAZIONE INTERNA E STRUTTURA */
         .dashboard-grid {
-            display: none; /* Nascosto all'inizio */
+            display: none; 
             flex-direction: column;
             gap: 20px;
             width: 100%;
@@ -141,7 +152,7 @@
         body.mode-latte .main-header h1 { color: var(--milk-color); }
         body.mode-latte .card { box-shadow: 0 10px 30px rgba(93, 169, 233, 0.08); border-color: rgba(164, 212, 255, 0.5); }
         body.mode-latte .card-title { color: var(--milk-color); }
-        body.mode-latte button:not(.btn-back) { background: linear-gradient(135deg, #7ec0ee, #5da9e9); box-shadow: 0 5px 15px rgba(93, 169, 233, 0.25); }
+        body.mode-latte button:not(.btn-back):not(.btn-pdf) { background: linear-gradient(135deg, #7ec0ee, #5da9e9); box-shadow: 0 5px 15px rgba(93, 169, 233, 0.25); }
 
         .average-container {
             background: linear-gradient(135deg, #e6f2ff, #cbe3fc);
@@ -154,18 +165,8 @@
         }
         .average-container span { font-size: 1.8rem; font-weight: 800; display: block; margin-top: 4px; }
 
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #7a6666;
-        }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #7a6666; }
 
         input, select {
             width: 100%;
@@ -212,7 +213,7 @@
         }
 
         button:disabled { background: #e0d0d2; box-shadow: none; cursor: not-allowed; }
-        .btn-pdf { background: linear-gradient(135deg, #6fdcd9, #4cb0ae); box-shadow: 0 5px 15px rgba(76, 176, 174, 0.2); margin-top: 12px; }
+        .btn-pdf { background: linear-gradient(135deg, #6fdcd9, #4cb0ae); box-shadow: 0 5px 15px rgba(76, 176, 174, 0.25); }
 
         .status-message { margin-top: 12px; padding: 12px; border-radius: 14px; font-size: 0.85rem; font-weight: 600; display: none; }
         .status-success { background-color: #e6f9f0; color: #13734c; display: block; }
@@ -251,13 +252,19 @@
             .table-scroll { max-height: 330px; }
         }
 
+        /* AREA ESPORTAZIONE PDF */
         #pdf-export-area { position: absolute; left: -9999px; top: 0; width: 794px; background-color: #fff9fa; padding: 45px; box-sizing: border-box; }
         .pdf-header { text-align: center; border-bottom: 3px dashed #ffb6c1; padding-bottom: 25px; margin-bottom: 30px; }
         .pdf-header h1 { color: #ff8da1; font-size: 3.2rem; }
+        .pdf-header p { font-size: 1.2rem; color: #8c7b7b; font-style: italic; }
         .pdf-section-title { color: #ff8da1; font-size: 1.6rem; margin: 30px 0 15px 0; border-left: 6px solid #ffb6c1; padding-left: 12px; font-weight: bold; }
-        .pdf-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        .pdf-section-title.pdf-milk-title { color: #468ac4; border-left-color: #a4d4ff; }
+        .pdf-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
         .pdf-table th { background-color: #ffb6c1; color: white; padding: 14px; font-size: 1.1rem; }
+        .pdf-table.pdf-milk-table th { background-color: #a4d4ff; color: #2b618c; }
         .pdf-table td { padding: 14px; border-bottom: 1px solid #ffe4e1; font-size: 1rem; }
+        .pdf-table.pdf-milk-table td { border-bottom-color: #e2effa; }
+        .pdf-average-box { background: #edf5fc; border: 1px solid #a4d4ff; color: #2b618c; padding: 15px; border-radius: 12px; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; }
 
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -283,6 +290,12 @@
             <icon>🍼</icon>
             <h2>Registro Latte</h2>
             <p>Monitora la quantità di latte quotidiana e controlla le medie</p>
+        </div>
+
+        <div class="pdf-login-box">
+            <h3>Esportazione Rapida</h3>
+            <p>Genera un unico documento PDF contenente il grafico, l'elenco delle pesate e il diario completo del latte.</p>
+            <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Scarica Report PDF Completo</button>
         </div>
     </div>
 
@@ -317,7 +330,6 @@
                     <button type="submit" id="submitBtn">Salva nei Dati ✨</button>
                 </form>
                 <div id="status" class="status-message"></div>
-                <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Esporta File PDF</button>
             </div>
         </div>
 
@@ -393,11 +405,34 @@
     </div>
 
     <div id="pdf-export-area">
-        <div class="pdf-header"><h1>Piccola Baby 👶🏼🎀</h1><p>✨ Diario ufficiale e grafico della crescita della nostra bimba ✨</p></div>
+        <div class="pdf-header">
+            <h1>Piccola Baby 👶🏼🎀</h1>
+            <p>✨ Diario ufficiale e grafico della crescita della nostra bimba ✨</p>
+        </div>
+        
         <div class="pdf-section-title">📈 Curva di Crescita Progressiva</div>
-        <div style="background: white; padding: 20px; border-radius: 20px; border: 1px solid #ffe4e1;"><img id="pdf-chart-image" style="width: 100%; height: auto; display: block;" /></div>
+        <div style="background: white; padding: 20px; border-radius: 20px; border: 1px solid #ffe4e1; margin-bottom: 20px;">
+            <img id="pdf-chart-image" style="width: 100%; height: auto; display: block;" />
+        </div>
+
         <div class="pdf-section-title">📋 Registro Cronologico delle Pesate</div>
-        <table class="pdf-table"><thead><tr><th>Data e Ora</th><th>Peso</th><th>Momento</th><th>Note</th></tr></thead><tbody id="pdfTableBody"></tbody></table>
+        <table class="pdf-table">
+            <thead>
+                <tr><th>Data e Ora</th><th>Peso Registrato</th><th>Momento</th><th>Note e Appunti</th></tr>
+            </thead>
+            <tbody id="pdfTableBody"></tbody>
+        </table>
+
+        <div id="pdfMilkSection" style="display:none; margin-top: 30px;">
+            <div class="pdf-section-title pdf-milk-title">🍼 Diario dei Pasti e Consumo Latte</div>
+            <div class="pdf-average-box" id="pdfMilkAverage">Media Giornaliera: -</div>
+            <table class="pdf-table pdf-milk-table">
+                <thead>
+                    <tr><th>Data</th><th>Quantità Totale Assunta</th><th>Note di Giornata</th></tr>
+                </thead>
+                <tbody id="pdfMilkTableBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -405,8 +440,8 @@
         var latteHistory = [];
         var myChart = null;
 
-        // ⚠️ INDIRIZZO SCRIPT GOOGLE AGGIORNATO E CORRETTO
-        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqCDb13R7gmI-dz7aRooWr2yhUMQ0UOYLgqhEdHWAlEp0dnqRMgE56eBG7f5cy87pB/exec";
+        // ⚠️ INDIRIZZO SCRIPT GOOGLE
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWo_0GczG1sa8dwqvaP3tWWQr0Hgdx4kQOYVEPJBX3G5uN3S42cHyitbAyYH5eObtr/exec";
 
         function enterSection(section) {
             document.getElementById('login-screen').style.display = 'none';
@@ -525,7 +560,6 @@
             var milkQuantity = document.getElementById('milkQuantity').value;
             var milkNotes = document.getElementById('milkNotes').value || "-";
 
-            // Aggiorna interfaccia locale immediatamente
             var dataParti = milkDate.split("-");
             var dataFormattataCorta = dataParti.length === 3 ? dataParti[2]+"/"+dataParti[1]+"/"+dataParti[0] : milkDate;
 
@@ -588,22 +622,28 @@
 
         function renderInterfacciaLatte() {
             var tableMilkBody = document.getElementById('tableMilkBody');
+            var pdfMilkTableBody = document.getElementById('pdfMilkTableBody');
+            var pdfMilkSection = document.getElementById('pdfMilkSection');
+
             tableMilkBody.innerHTML = "";
+            pdfMilkTableBody.innerHTML = "";
 
             if (latteHistory.length === 0) {
                 tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessun inserimento presente.</td></tr>';
                 document.getElementById('averageLabel').innerText = "0 ml";
+                pdfMilkSection.style.display = "none";
                 return;
             }
 
-            var sommaml = 0;
-            var conteggioGiorni = 0;
+            pdfMilkSection.style.display = "block";
+            var sommaml = 0; var conteggioGiorni = 0;
 
             latteHistory.forEach(l => {
                 var dataG = l.date.includes("T") ? l.date.split("T")[0] : l.date;
-                var r = document.createElement('tr');
-                r.innerHTML = "<td>"+dataG+"</td><td><strong style='color:#3a87c4;'>"+l.quantity+" ml</strong></td><td>"+l.notes+"</td>";
-                tableMilkBody.appendChild(r);
+                var rContenuto = "<td>"+dataG+"</td><td><strong style='color:#3a87c4;'>"+l.quantity+" ml</strong></td><td>"+l.notes+"</td>";
+                
+                var r1 = document.createElement('tr'); r1.innerHTML = rContenuto; tableMilkBody.appendChild(r1);
+                var r2 = document.createElement('tr'); r2.innerHTML = rContenuto; pdfMilkTableBody.appendChild(r2);
 
                 if (conteggioGiorni < 7) {
                     sommaml += parseInt(l.quantity);
@@ -613,13 +653,14 @@
 
             var mediaCalcolata = conteggioGiorni > 0 ? Math.round(sommaml / conteggioGiorni) : 0;
             document.getElementById('averageLabel').innerText = mediaCalcolata + " ml";
+            document.getElementById('pdfMilkAverage').innerText = "Media Giornaliera Calcolata (Ultima settimana): " + mediaCalcolata + " ml";
         }
 
-        // GENERAZIONE PDF
+        // GENERAZIONE PDF COMPLETO
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            if (pesateHistory.length === 0) { alert("Dati insufficienti!"); return; }
+            if (pesateHistory.length === 0) { alert("Attenzione: non ci sono ancora dati inseriti per generare il PDF!"); return; }
             var downloadBtn = document.getElementById('downloadPdfBtn');
-            downloadBtn.disabled = true; downloadBtn.innerText = "Esportazione...";
+            downloadBtn.disabled = true; downloadBtn.innerText = "Esportazione in corso...";
             document.getElementById('pdf-chart-image').src = myChart.toBase64Image();
             
             setTimeout(function() {
@@ -627,9 +668,24 @@
                     var imgData = canvas.toDataURL('image/jpeg', 0.98);
                     var pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
                     var widthInMm = pdf.internal.pageSize.getWidth();
-                    pdf.addImage(imgData, 'JPEG', 0, 0, widthInMm, (canvas.height * widthInMm) / canvas.width);
-                    pdf.save('Diario_Crescita_Baby.pdf');
-                }).finally(() => { downloadBtn.disabled = false; downloadBtn.innerText = '📥 Esporta File PDF'; });
+                    var heightInMm = pdf.internal.pageSize.getHeight();
+                    var imgHeightInMm = (canvas.height * widthInMm) / canvas.width;
+                    
+                    var heightLeft = imgHeightInMm;
+                    var position = 0;
+
+                    pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
+                    heightLeft -= heightInMm;
+
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeightInMm;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
+                        heightLeft -= heightInMm;
+                    }
+                    
+                    pdf.save('Diario_Completo_Baby.pdf');
+                }).finally(() => { downloadBtn.disabled = false; downloadBtn.innerText = '📥 Scarica Report PDF Completo'; });
             }, 600);
         });
     </script>
