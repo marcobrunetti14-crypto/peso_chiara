@@ -262,6 +262,83 @@
             50% { transform: translateY(-5px); }
             100% { transform: translateY(0px); }
         }
+
+        /* ==========================================================================
+           REGOLE DI STAMPA PDF (CSS NATIVO AGNOSTICO AL BROWSER - NO REDIRECT)
+           ========================================================================== */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+            
+            /* Nascondiamo completamente tutta l'interfaccia interattiva e i moduli */
+            #login-screen, 
+            #weightForm, 
+            #milkForm, 
+            .btn-back, 
+            .status-message {
+                display: none !important;
+            }
+
+            /* Forziamo la visualizzazione simultanea di entrambe le sezioni dati */
+            .dashboard-grid {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            /* Riorganizziamo le card per farle apparire come foglio unico ordinato */
+            .card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 10px 0 !important;
+                margin-bottom: 20px !important;
+                page-break-inside: avoid;
+            }
+
+            .card-title {
+                font-size: 1.4rem !important;
+                color: #000000 !important;
+                border-bottom: 2px solid #333 !important;
+                padding-bottom: 5px !important;
+                margin-bottom: 15px !important;
+            }
+
+            /* Sblocchiamo le tabelle scrollabili facendole stampare interamente */
+            .table-scroll {
+                max-height: none !important;
+                overflow: visible !important;
+                border: none !important;
+            }
+
+            th {
+                background-color: #f2f2f2 !important;
+                color: #000000 !important;
+                border-bottom: 2px solid #000000 !important;
+            }
+
+            td {
+                border-bottom: 1px solid #ddd !important;
+            }
+
+            /* Ottimizzazione Grafico */
+            .chart-wrapper {
+                width: 100% !important;
+                max-height: 400px !important;
+                page-break-inside: avoid;
+            }
+
+            /* Evita interruzioni di pagina brutte a metà tabella */
+            tr {
+                page-break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body>
@@ -404,13 +481,10 @@
         </div>
     </div>
 
-    <iframe id="printFrame" style="position: absolute; width: 0; height: 0; border: 0; top: -1000px; left: -1000px;"></iframe>
-
     <script>
         var pesateHistory = [];
         var latteHistory = [];
         var myChart = null;
-        var mediaTestoPdf = "";
 
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWo_0GczG1sa8dwqvaP3tWWQr0Hgdx4kQOYVEPJBX3G5uN3S42cHyitbAyYH5eObtr/exec";
 
@@ -457,7 +531,6 @@
         function pulisciData(dataStr) {
             if (!dataStr) return "-";
             var s = dataStr.toString().trim();
-
             s = s.split("GMT")[0].split("(")[0].split("Ora")[0].trim();
 
             var pezzi = s.split(/\s+/);
@@ -467,29 +540,20 @@
                 var annoNum = parseInt(pezzi[3]);
                 
                 var d = new Date(annoNum, meseNum, giornoNum);
-                
                 var orarioTrovato = pezzi.find(p => p.includes(":"));
                 if (orarioTrovato) {
                     var hms = orarioTrovato.split(":");
                     d.setHours(parseInt(hms[0] || 0));
                     d.setMinutes(parseInt(hms[1] || 0));
                 }
-                
-                if (!isNaN(d.getTime())) {
-                    return formattaDataFinale(d);
-                }
+                if (!isNaN(d.getTime())) return formattaDataFinale(d);
             }
 
             try {
                 var dStandard = new Date(s);
-                if (isNaN(dStandard.getTime())) {
-                    dStandard = new Date(s.replace(/-/g, "/"));
-                }
-                if (!isNaN(dStandard.getTime())) {
-                    return formattaDataFinale(dStandard);
-                }
+                if (isNaN(dStandard.getTime())) dStandard = new Date(s.replace(/-/g, "/"));
+                if (!isNaN(dStandard.getTime())) return formattaDataFinale(dStandard);
             } catch(e) {}
-
             return dataStr;
         }
 
@@ -621,7 +685,6 @@
             for(var i=0; i<numGiorni; i++) { sommaMl += latteMappaGiorni[chiaviGiorni[i]]; }
             var mediaCalcolata = numGiorni > 0 ? Math.round(sommaMl / numGiorni) : 0;
             document.getElementById('averageLabel').innerText = mediaCalcolata + " ml";
-            mediaTestoPdf = "Media Giornaliera Effettiva (Ultimi " + numGiorni + " giorni): " + mediaCalcolata + " ml";
 
             var timelineMappa = {};
             if (pesateHistory) {
@@ -718,208 +781,33 @@
             });
         }
 
-        // ESPORTAZIONE DIRETTA CORRETTA (SISTEMA GRAFICO BLOCCATO E ONLOAD ASINCRONO)
+        // ==========================================================================
+        // LA NUOVA FUNZIONE DI STAMPA DIRETTA SENZA REDIRECT E SENZA INTERFACCE ROTTE
+        // ==========================================================================
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            if(!myChart) return;
+            // Mostriamo temporaneamente tutti i blocchi dati prima di stampare
+            // così la stampante legge sia lo storico latte che il peso insieme
+            var pesoGrid = document.getElementById('dashboard-peso');
+            var latteGrid = document.getElementById('dashboard-latte');
             
-            var btn = document.getElementById('downloadPdfBtn');
-            btn.disabled = true;
-            btn.innerText = "Generazione in corso... ⏳";
+            var vecchioStilePeso = pesoGrid.style.display;
+            var vecchioStileLatte = latteGrid.style.display;
 
-            // 1. Forza l'aggiornamento grafico a completarsi senza animazioni residue
-            myChart.update('none');
+            pesoGrid.style.display = 'block';
+            latteGrid.style.display = 'block';
 
+            // Assicuriamoci che il grafico si sia assestato senza animazioni pendenti
+            if(myChart) { myChart.update('none'); }
+
+            // Avviamo immediatamente la finestra di stampa nativa del sistema operativo
+            // Non essendoci iframe esterni o finestre popup, non ci sarà NESSUN redirect.
             setTimeout(function() {
-                var chartImgBase64 = myChart.toBase64Image();
+                window.print();
                 
-                var righePeso = "";
-                if (pesateHistory.length > 0) {
-                    pesateHistory.forEach(p => {
-                        var dt = pulisciData(p.date);
-                        var pesoPulito = p.weight.toString().includes("kg") ? p.weight : parseFloat(p.weight).toFixed(3) + " kg";
-                        righePeso += `<tr><td>${dt}</td><td class="bold">${pesoPulito}</td><td>${p.moment}</td><td>${p.notes}</td></tr>`;
-                    });
-                } else {
-                    righePeso = `<tr><td colspan="4" style="text-align:center; color:#999;">Nessun dato registrato</td></tr>`;
-                }
-
-                var righeLatte = "";
-                var visualizzaSezioneLatte = "none";
-                if (latteHistory.length > 0) {
-                    visualizzaSezioneLatte = "block";
-                    latteHistory.forEach(l => {
-                        var dt = pulisciData(l.date);
-                        var quantitaUnita = l.quantity.toString().includes("ml") ? l.quantity : l.quantity + " ml";
-                        righeLatte += `<tr><td>${dt}</td><td class="bold text-blue">${quantitaUnita}</td><td>${l.notes}</td></tr>`;
-                    });
-                }
-
-                var htmlReport = `
-                    <!DOCTYPE html>
-                    <html lang="it">
-                    <head>
-                        <meta charset="UTF-8">
-                        <style>
-                            body {
-                                font-family: 'Segoe UI', -apple-system, sans-serif;
-                                color: #333;
-                                background-color: #fff;
-                                padding: 25px;
-                                margin: 0;
-                            }
-                            .header {
-                                text-align: center;
-                                border-bottom: 3px dashed #ffb6c1;
-                                padding-bottom: 15px;
-                                margin-bottom: 25px;
-                            }
-                            .header h1 { color: #ff8da1; margin: 0 0 5px 0; font-size: 2.3rem; }
-                            .header p { color: #777; font-style: italic; margin: 0; font-size: 1.05rem; }
-                            
-                            .section-title {
-                                color: #ff8da1;
-                                font-size: 1.3rem;
-                                font-weight: bold;
-                                margin: 25px 0 12px 0;
-                                border-left: 5px solid #ffb6c1;
-                                padding-left: 10px;
-                                page-break-after: avoid;
-                            }
-                            .section-title.milk-title {
-                                color: #468ac4;
-                                border-left-color: #a4d4ff;
-                            }
-                            
-                            .chart-container {
-                                text-align: center;
-                                margin-bottom: 25px;
-                                background: #fff;
-                                border: 1px solid #ffe4e1;
-                                border-radius: 16px;
-                                padding: 12px;
-                            }
-                            .chart-container img {
-                                max-width: 100%;
-                                height: auto;
-                                display: block;
-                                margin: 0 auto;
-                            }
-                            
-                            .average-box {
-                                background: #edf5fc;
-                                border: 1px solid #a4d4ff;
-                                color: #2b618c;
-                                padding: 10px 12px;
-                                border-radius: 12px;
-                                font-size: 1rem;
-                                margin-bottom: 12px;
-                                font-weight: bold;
-                            }
-                            
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin-bottom: 20px;
-                                font-size: 0.9rem;
-                            }
-                            th, td {
-                                padding: 10px 12px;
-                                text-align: left;
-                                border-bottom: 1px solid #eee;
-                                word-wrap: break-word;
-                            }
-                            th {
-                                background-color: #fff0f2;
-                                color: #e6677e;
-                                font-weight: bold;
-                            }
-                            .milk-table th {
-                                background-color: #edf5fc;
-                                color: #468ac4;
-                            }
-                            .bold { font-weight: bold; }
-                            .text-blue { color: #3a87c4; }
-                            
-                            @media print {
-                                body { padding: 0; }
-                                tr { page-break-inside: avoid; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="header">
-                            <h1>Piccola Baby 👶🏼🎀</h1>
-                            <p>Diario di Crescita e Alimentazione Aggiornato</p>
-                        </div>
-
-                        <div class="section-title">📈 Grafico Comparativo (Crescita & Alimentazione)</div>
-                        <div class="chart-container">
-                            <img src="${chartImgBase64}" alt="Grafico Crescita">
-                        </div>
-
-                        <div class="section-title">📋 Registro Cronologico delle Pesate</div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 30%;">Data e Ora</th>
-                                    <th style="width: 20%;">Peso Registrato</th>
-                                    <th style="width: 25%;">Momento</th>
-                                    <th style="width: 25%;">Note / Appunti</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${righePeso}
-                            </tbody>
-                        </table>
-
-                        <div style="display: ${visualizzaSezioneLatte};">
-                            <div class="section-title milk-title">🍼 Diario Cronologico Poppate</div>
-                            <div class="average-box">${mediaTestoPdf}</div>
-                            <table class="milk-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 30%;">Data e Ora</th>
-                                        <th style="width: 20%;">Quantità Assunta</th>
-                                        <th style="width: 50%;">Note di Giornata</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${righeLatte}
-                                </tbody>
-                            </table>
-                        </div>
-                    </body>
-                    </html>
-                `;
-
-                // 2. Inietta il codice ed esegui la stampa solo ad elaborazione completata dell'iframe
-                var iframe = document.getElementById('printFrame');
-                var doc = iframe.contentDocument || iframe.contentWindow.document;
-                doc.open();
-                doc.write(htmlReport);
-                doc.close();
-
-                // Aspetta l'effettivo caricamento della finestra interna e l'assorbimento dell'immagine
-                iframe.contentWindow.onload = function() {
-                    setTimeout(function() {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                        btn.disabled = false;
-                        btn.innerText = "📊 Esporta Report di Crescita";
-                    }, 250);
-                };
-
-                // Fallback di sicurezza per i browser che non triggerano onload su stringhe scritte a mano
-                if (doc.readyState === 'complete') {
-                    setTimeout(function() {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                        btn.disabled = false;
-                        btn.innerText = "📊 Esporta Report di Crescita";
-                    }, 400);
-                }
-
-            }, 100);
+                // Al termine della stampa o della chiusura della modale, ripristiniamo la vista corretta
+                pesoGrid.style.display = vecchioStilePeso;
+                latteGrid.style.display = vecchioStileLatte;
+            }, 50);
         });
     </script>
 </body>
