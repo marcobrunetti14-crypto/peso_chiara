@@ -495,13 +495,12 @@
                 if(data) {
                     pesateHistory = data.pesate || [];
                     latteHistory = data.latte || [];
-                    aggiornaGraficoEInterfacce();
                 }
+                aggiornaGraficoEInterfacce();
             })
             .catch(error => {
                 console.error(error);
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bf2600; padding: 20px;">Errore sincronizzazione. ❌</td></tr>';
-                document.getElementById('tableMilkBody').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #bf2600; padding: 20px;">Errore sincronizzazione. ❌</td></tr>';
+                aggiornaGraficoEInterfacce();
             });
         }
 
@@ -578,7 +577,7 @@
             var pdfTableBody = document.getElementById('pdfTableBody');
             tableBody.innerHTML = ""; pdfTableBody.innerHTML = "";
             
-            if (pesateHistory.length > 0) {
+            if (pesateHistory && pesateHistory.length > 0) {
                 pesateHistory.forEach(p => {
                     var dt = pulisciData(p.date);
                     var str = "<td>" + dt + "</td><td><strong>" + p.weight + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
@@ -586,7 +585,7 @@
                     var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableBody.appendChild(r2);
                 });
             } else {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 20px;">Nessun dato peso.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">Nessun dato peso trovato o in caricamento...</td></tr>';
             }
 
             // 2. RENDER TABELLA LATTE
@@ -596,7 +595,7 @@
             tableMilkBody.innerHTML = ""; pdfMilkTableBody.innerHTML = "";
 
             var latteMappaGiorni = {};
-            if (latteHistory.length > 0) {
+            if (latteHistory && latteHistory.length > 0) {
                 pdfMilkSection.style.display = "block";
                 latteHistory.forEach(l => {
                     var dt = pulisciData(l.date);
@@ -608,7 +607,7 @@
                     latteMappaGiorni[giornoKey] = (latteMappaGiorni[giornoKey] || 0) + parseInt(l.quantity);
                 });
             } else {
-                tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata.</td></tr>';
+                tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata trovata o in caricamento...</td></tr>';
                 pdfMilkSection.style.display = "none";
             }
 
@@ -623,24 +622,27 @@
             // 3. COSTRUZIONE MAPPA UNIFICATA CRONOLOGICA PER IL GRAFICO COMPARATIVO
             var timelineMappa = {};
             
-            pesateHistory.forEach(p => {
-                var dSolo = pulisciData(p.date).split(" ")[0];
-                var pNum = parseFloat(p.weight.replace(" kg", ""));
-                if(!isNaN(pNum)) {
-                    if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
-                    timelineMappa[dSolo].peso = pNum; // Tiene l'ultimo caricato della giornata
-                }
-            });
+            if (pesateHistory) {
+                pesateHistory.forEach(p => {
+                    var dSolo = pulisciData(p.date).split(" ")[0];
+                    var pNum = parseFloat(p.weight.replace(" kg", ""));
+                    if(!isNaN(pNum)) {
+                        if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
+                        timelineMappa[dSolo].peso = pNum;
+                    }
+                });
+            }
 
-            // Somma le quantità di latte dello stesso giorno per fare un confronto sensato sul grafico giornaliero
-            latteHistory.forEach(l => {
-                var dSolo = pulisciData(l.date).split(" ")[0];
-                var lNum = parseInt(l.quantity);
-                if(!isNaN(lNum)) {
-                    if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
-                    timelineMappa[dSolo].latte += lNum;
-                }
-            });
+            if (latteHistory) {
+                latteHistory.forEach(l => {
+                    var dSolo = pulisciData(l.date).split(" ")[0];
+                    var lNum = parseInt(l.quantity);
+                    if(!isNaN(lNum)) {
+                        if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
+                        timelineMappa[dSolo].latte += lNum;
+                    }
+                });
+            }
 
             var giorniOrdinati = Object.keys(timelineMappa).sort(function(a,b){
                 var pA = a.split("/"); var pB = b.split("/");
@@ -649,4 +651,70 @@
 
             var datasetPeso = []; var datasetLatte = [];
             giorniOrdinati.forEach(g => {
-                datasetPeso.push(timelineMappa
+                datasetPeso.push(timelineMappa[g].peso);
+                datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null);
+            });
+
+            // GENERAZIONE GRAFICO COMPRENSIVO
+            var ctx = document.getElementById('growthChart').getContext('2d');
+            if (myChart) { myChart.destroy(); }
+            var isMobile = window.innerWidth < 600;
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: giorniOrdinati.length > 0 ? giorniOrdinati : ["In attesa dati..."],
+                    datasets: [
+                        { label: 'Peso (kg)', data: datasetPeso.length > 0 ? datasetPeso : [0], borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, pointBackgroundColor: '#ff4f6e', yAxisID: 'yPeso', spanGaps: true },
+                        { label: 'Latte Totale (ml)', data: datasetLatte.length > 0 ? datasetLatte : [0], borderColor: '#5da9e9', backgroundColor: 'rgba(93, 169, 233, 0.1)', borderWidth: 3, pointBackgroundColor: '#2b618c', yAxisID: 'yLatte', type: 'bar', barThickness: 15 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: isMobile ? 1.3 : 2.2,
+                    scales: {
+                        yPeso: { type: 'linear', position: 'left', title: { display: true, text: 'Peso (kg)', color: '#ff758c' }, grid: { color: '#fcedf0' } },
+                        yLatte: { type: 'linear', position: 'right', title: { display: true, text: 'Latte Giornaliero (ml)', color: '#5da9e9' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // SCARICA PDF CON ATTESA DI RENDERING
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            var downloadBtn = document.getElementById('downloadPdfBtn');
+            downloadBtn.disabled = true; downloadBtn.innerText = "Generazione Grafici e Tabelle...";
+            
+            if(myChart) {
+                document.getElementById('pdf-chart-image').src = myChart.toBase64Image();
+            }
+            
+            setTimeout(function() {
+                html2canvas(document.getElementById('pdf-export-area'), { scale: 2, useCORS: true, logging: false }).then(function(canvas) {
+                    var imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    var pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+                    var widthInMm = pdf.internal.pageSize.getWidth();
+                    var heightInMm = pdf.internal.pageSize.getHeight();
+                    var imgHeightInMm = (canvas.height * widthInMm) / canvas.width;
+                    
+                    var heightLeft = imgHeightInMm;
+                    var position = 0;
+
+                    pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
+                    heightLeft -= heightInMm;
+
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeightInMm;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
+                        heightLeft -= heightInMm;
+                    }
+                    
+                    pdf.save('Diario_Crescita_Misto_Baby.pdf');
+                }).finally(() => { downloadBtn.disabled = false; downloadBtn.innerText = '📥 Scarica Report PDF Completo'; });
+            }, 800);
+        });
+    </script>
+</body>
+</html>
