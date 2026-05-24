@@ -425,7 +425,7 @@
 
     <div id="pdf-export-container">
         <div style="text-align: center; margin-bottom: 10px;">
-            <h1 style="color: var(--primary-color); font-size: 2.2rem; font-weight: 800;">Il Diario di Baby</h1>
+            <h1 style="color: var(--primary-color); font-size: 2.2rem; font-weight: 800;">👶🏼 Il Diario di Baby 🎀</h1>
             <p style="color: #7a6666; font-size: 1rem; font-style: italic; margin-top: 5px;">Report Cronologico di Accrescimento ed Alimentazione</p>
             <div style="height: 2px; background-color: var(--primary-light); margin: 15px auto 5px auto; width: 90%;"></div>
         </div>
@@ -443,10 +443,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-data-ora" style="background-color: #fff0f2; color: #e6677e;">Data e Ora</th>
-                            <th class="col-valore" style="background-color: #fff0f2; color: #e6677e;">Peso</th>
-                            <th class="col-momento" style="background-color: #fff0f2; color: #e6677e;">Momento</th>
-                            <th class="col-note" style="background-color: #fff0f2; color: #e6677e;">Note</th>
+                            <th class="col-data-ora" style="background-color: #fff0f2; color: #e6677e;">📅 Data e Ora</th>
+                            <th class="col-valore" style="background-color: #fff0f2; color: #e6677e;">⚖️ Peso</th>
+                            <th class="col-momento" style="background-color: #fff0f2; color: #e6677e;">🍼 Condizione</th>
+                            <th class="col-note" style="background-color: #fff0f2; color: #e6677e;">📝 Note</th>
                         </tr>
                     </thead>
                     <tbody id="pdfTableBody"></tbody>
@@ -457,15 +457,15 @@
         <div class="card" style="background-color: #f0f7ff;">
             <h2 class="card-title" style="color: var(--milk-color);">🍼 Registro Cronologico delle Poppate</h2>
             <div class="average-container" style="margin-bottom: 15px; padding: 10px;">
-                Volume medio calcolato (Ultimi 7 giorni attivi): <strong id="pdfAverageLabel">0 ml</strong>
+                🍼 Volume medio calcolato (Ultimi 7 giorni attivi): <strong id="pdfAverageLabel">0 ml</strong>
             </div>
             <div class="table-scroll">
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-latte-data" style="background-color: #edf5fc; color: #468ac4;">Data e Ora</th>
-                            <th class="col-latte-val" style="background-color: #edf5fc; color: #468ac4;">Quantità</th>
-                            <th class="col-latte-note" style="background-color: #edf5fc; color: #468ac4;">Note / Appunti</th>
+                            <th class="col-latte-data" style="background-color: #edf5fc; color: #468ac4;">📅 Data e Ora</th>
+                            <th class="col-latte-val" style="background-color: #edf5fc; color: #468ac4;">🍼 Quantità</th>
+                            <th class="col-latte-note" style="background-color: #edf5fc; color: #468ac4;">📝 Note / Appunti</th>
                         </tr>
                     </thead>
                     <tbody id="pdfTableMilkBody"></tbody>
@@ -656,12 +656,12 @@
                 yPeso: { 
                     type: 'linear', 
                     position: 'left', 
-                    title: { display: true, text: 'Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }
+                    title: { display: true, text: '⚖️ Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }
                 },
                 yLatte: { 
                     type: 'linear', 
                     position: 'right', 
-                    title: { display: true, text: 'Latte Assunto (ml)', color: '#5da9e9', font: { weight: 'bold' } }, 
+                    title: { display: true, text: '🍼 Latte Assunto (ml)', color: '#5da9e9', font: { weight: 'bold' } }, 
                     grid: { display: false } 
                 }
             };
@@ -754,11 +754,11 @@
                 labels: etichetteX,
                 datasets: [
                     { 
-                        label: 'Peso Corporeo (kg)', data: datasets.peso, borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, 
+                        label: '⚖️ Peso Corporeo (kg)', data: datasets.peso, borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, 
                         pointBackgroundColor: '#ffffff', pointBorderColor: '#ff4f6e', pointBorderWidth: 2, pointRadius: 5, yAxisID: 'yPeso', spanGaps: true
                     },
                     { 
-                        label: 'Latte Giornaliero (ml)', data: datasets.latte, borderColor: '#5da9e9', backgroundColor: 'transparent', borderWidth: 3, 
+                        label: '🍼 Latte Giornaliero (ml)', data: datasets.latte, borderColor: '#5da9e9', backgroundColor: 'transparent', borderWidth: 3, 
                         pointBackgroundColor: '#ffffff', pointBorderColor: '#2b618c', pointBorderWidth: 2, pointRadius: 5, yAxisID: 'yLatte', spanGaps: true
                     }
                 ]
@@ -774,7 +774,7 @@
                 }
             });
 
-            // CREAZIONE SIMULTANEA DEL GRAFICO COPIATO PER IL PDF (SBLOCCA IL BUG DEI GRAFICI ARRESTATI)
+            // CREAZIONE SIMULTANEA DEL GRAFICO PER IL PDF CON EMOJI NATIVE
             var pdfCtx = document.getElementById('pdfGrowthChart').getContext('2d');
             if (pdfChart) { pdfChart.destroy(); }
             pdfChart = new Chart(pdfCtx, {
@@ -782,7 +782,7 @@
                 data: configData,
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    animation: false, // Disattivata per rendere lo scatto fotografico immediato
+                    animation: false, 
                     plugins: { legend: { position: 'top', labels: { font: { weight: 'bold', size: 11 } } } },
                     scales: ottieniConfigurazioneScale()
                 }
@@ -790,30 +790,28 @@
         }
 
         // ==========================================================================
-        // STRATEGIA HTML2PDF: ACQUISIZIONE REALE IN ALTA DEFINIZIONE SENZA REDIRECT
+        // STRATEGIA HTML2PDF CON SUPPORTO INTEGRALE EMOJI
         // ==========================================================================
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             var btn = document.getElementById('downloadPdfBtn');
             btn.disabled = true;
             btn.innerText = "Cattura Grafica... ⏳";
 
-            // Sblocchiamo temporaneamente il blocco invisibile per consentire ad html2pdf di scansionarlo
             var pdfContainer = document.getElementById('pdf-export-container');
             pdfContainer.style.display = 'flex';
 
-            // Diamo un micro-istante al motore grafico di allineare i dati della tabella
             setTimeout(function() {
                 var opzioniScatto = {
                     margin: [10, 10, 10, 10],
                     filename: 'diario_crescita_baby.pdf',
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { 
-                        scale: 2, // Raddoppia la definizione per rendere i testi nitidissimi
+                        scale: 2, // Mantiene i testi ed emoji ad alta definizione nitidissimi
                         useCORS: true, 
                         logging: false 
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['avoid-all', 'css'] } // Evita che i titoli o le righe vengano tagliati a metà foglio
+                    pagebreak: { mode: ['avoid-all', 'css'] } 
                 };
 
                 html2pdf().set(opzioniScatto).from(pdfContainer).save()
@@ -824,7 +822,6 @@
                     console.error("Errore esportazione html2pdf:", err);
                 })
                 .finally(function() {
-                    // Richiudiamo il container di backup per non rovinare la schermata iniziale
                     pdfContainer.style.display = 'none';
                     btn.disabled = false;
                     btn.innerText = "📊 Esporta Report di Crescita";
