@@ -235,11 +235,16 @@
         .table-scroll::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 10px; }
         body.mode-latte .table-scroll::-webkit-scrollbar-thumb { background: var(--milk-light); border-radius: 10px; }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 500px; }
-        th, td { padding: 12px 14px; border-bottom: 1px solid #fdf1f2; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 100%; table-layout: fixed; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #fdf1f2; font-size: 0.85rem; word-break: break-word; overflow: hidden; text-overflow: ellipsis; }
         body.mode-latte th, body.mode-latte td { border-bottom-color: #edf5fc; }
         th { background-color: #fff0f2; color: #e6677e; font-weight: 700; position: sticky; top: 0; z-index: 1; }
         body.mode-latte th { background-color: #edf5fc; color: #468ac4; }
+
+        .col-data-ora { width: 28%; }
+        .col-valore { width: 18%; }
+        .col-momento { width: 24%; }
+        .col-note { width: 30%; }
 
         @media (min-width: 850px) {
             body { padding: 30px 20px; }
@@ -257,10 +262,10 @@
         .pdf-header p { font-size: 1.2rem; color: #8c7b7b; font-style: italic; }
         .pdf-section-title { color: #ff8da1; font-size: 1.6rem; margin: 30px 0 15px 0; border-left: 6px solid #ffb6c1; padding-left: 12px; font-weight: bold; }
         .pdf-section-title.pdf-milk-title { color: #468ac4; border-left-color: #a4d4ff; }
-        .pdf-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
-        .pdf-table th { background-color: #ffb6c1; color: white; padding: 14px; font-size: 1.1rem; }
+        .pdf-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 10px; table-layout: fixed; }
+        .pdf-table th { background-color: #ffb6c1; color: white; padding: 14px 10px; font-size: 1.05rem; }
         .pdf-table.pdf-milk-table th { background-color: #a4d4ff; color: #2b618c; }
-        .pdf-table td { padding: 14px; border-bottom: 1px solid #ffe4e1; font-size: 1rem; }
+        .pdf-table td { padding: 14px 10px; border-bottom: 1px solid #ffe4e1; font-size: 0.95rem; word-break: break-word; }
         .pdf-table.pdf-milk-table td { border-bottom-color: #e2effa; }
         .pdf-average-box { background: #edf5fc; border: 1px solid #a4d4ff; color: #2b618c; padding: 15px; border-radius: 12px; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; }
 
@@ -333,7 +338,7 @@
 
         <div class="right-column">
             <div class="card">
-                <h2 class="card-title">📈 Curva Integrata (Peso + Latte)</h2>
+                <h2 class="card-title">📈 Diario di Crescita Unificato</h2>
                 <div class="chart-wrapper"><canvas id="growthChart"></canvas></div>
             </div>
             <div class="card" style="margin-bottom: 20px;">
@@ -341,7 +346,12 @@
                 <div class="table-scroll">
                     <table>
                         <thead>
-                            <tr><th>Data e Ora</th><th>Peso</th><th>Momento</th><th>Note</th></tr>
+                            <tr>
+                                <th class="col-data-ora">Data e Ora</th>
+                                <th class="col-valore">Peso</th>
+                                <th class="col-momento">Momento</th>
+                                <th class="col-note">Note</th>
+                            </tr>
                         </thead>
                         <tbody id="tableBody">
                             <tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">Connessione... 🎀</td></tr>
@@ -391,7 +401,11 @@
                 <div class="table-scroll">
                     <table>
                         <thead>
-                            <tr><th>Data e Ora</th><th>Quantità</th><th>Note / Appunti</th></tr>
+                            <tr>
+                                <th style="width: 35%;">Data e Ora</th>
+                                <th style="width: 25%;">Quantità</th>
+                                <th style="width: 40%;">Note / Appunti</th>
+                            </tr>
                         </thead>
                         <tbody id="tableMilkBody">
                             <tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Caricamento storico... 🍼</td></tr>
@@ -416,7 +430,12 @@
         <div class="pdf-section-title">📋 Registro Cronologico delle Pesate</div>
         <table class="pdf-table">
             <thead>
-                <tr><th>Data e Ora</th><th>Peso Registrato</th><th>Momento</th><th>Note e Appunti</th></tr>
+                <tr>
+                    <th style="width: 30%;">Data e Ora</th>
+                    <th style="width: 20%;">Peso Registrato</th>
+                    <th style="width: 25%;">Momento</th>
+                    <th style="width: 25%;">Note e Appunti</th>
+                </tr>
             </thead>
             <tbody id="pdfTableBody"></tbody>
         </table>
@@ -426,7 +445,11 @@
             <div class="pdf-average-box" id="pdfMilkAverage">Media Giornaliera: -</div>
             <table class="pdf-table pdf-milk-table">
                 <thead>
-                    <tr><th>Data e Ora</th><th>Quantità Assunta</th><th>Note di Giornata</th></tr>
+                    <tr>
+                        <th style="width: 35%;">Data e Ora</th>
+                        <th style="width: 25%;">Quantità Assunta</th>
+                        <th style="width: 40%;">Note di Giornata</th>
+                    </tr>
                 </thead>
                 <tbody id="pdfMilkTableBody"></tbody>
             </table>
@@ -477,14 +500,24 @@
 
         function pulisciData(dataStr) {
             if (!dataStr) return "-";
-            if (dataStr.includes("GMT") || dataStr.includes("Ora legale") || dataStr.includes("-") || dataStr.includes("/")) {
-                try {
-                    var parsedDate = new Date(dataStr.replace(/-/g, "/"));
-                    if (!isNaN(parsedDate.getTime())) {
-                        return parsedDate.toLocaleDateString('it-IT') + ' ' + parsedDate.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-                    }
-                } catch(e) {}
+            var stringaPulita = dataStr.toString().trim();
+            if (stringaPulita.includes("GMT") || stringaPulita.includes("Europa")) {
+                stringaPulita = stringaPulita.split("GMT")[0].trim();
             }
+            try {
+                var parsedDate = new Date(stringaPulita);
+                if (isNaN(parsedDate.getTime())) {
+                    parsedDate = new Date(stringaPulita.replace(/-/g, "/"));
+                }
+                if (!isNaN(parsedDate.getTime())) {
+                    var giorno = String(parsedDate.getDate()).padStart(2, '0');
+                    var mese = String(parsedDate.getMonth() + 1).padStart(2, '0');
+                    var anno = parsedDate.getFullYear();
+                    var ore = String(parsedDate.getHours()).padStart(2, '0');
+                    var minuti = String(parsedDate.getMinutes()).padStart(2, '0');
+                    return giorno + '/' + mese + '/' + anno + ' ' + ore + ':' + minuti;
+                }
+            } catch(e) {}
             return dataStr;
         }
 
@@ -493,8 +526,8 @@
             .then(res => res.json())
             .then(data => {
                 if(data) {
-                    pesateHistory = data.pesate || [];
-                    latteHistory = data.latte || [];
+                    pesateHistory = (data.pesate || []).filter(p => p.weight && !p.weight.includes("NaN") && p.date);
+                    latteHistory = (data.latte || []).filter(l => l.quantity && !isNaN(parseInt(l.quantity)) && l.date);
                 }
                 aggiornaGraficoEInterfacce();
             })
@@ -572,7 +605,7 @@
         });
 
         function aggiornaGraficoEInterfacce() {
-            // 1. RENDER TABELLA PESO
+            // 1. RENDERING TABELLA PESO
             var tableBody = document.getElementById('tableBody');
             var pdfTableBody = document.getElementById('pdfTableBody');
             tableBody.innerHTML = ""; pdfTableBody.innerHTML = "";
@@ -585,10 +618,10 @@
                     var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableBody.appendChild(r2);
                 });
             } else {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">Nessun dato peso trovato o in caricamento...</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">Nessun dato peso presente.</td></tr>';
             }
 
-            // 2. RENDER TABELLA LATTE
+            // 2. RENDERING TABELLA LATTE
             var tableMilkBody = document.getElementById('tableMilkBody');
             var pdfMilkTableBody = document.getElementById('pdfMilkTableBody');
             var pdfMilkSection = document.getElementById('pdfMilkSection');
@@ -599,7 +632,8 @@
                 pdfMilkSection.style.display = "block";
                 latteHistory.forEach(l => {
                     var dt = pulisciData(l.date);
-                    var str = "<td>" + dt + "</td><td><strong style='color:#3a87c4;'>" + l.quantity + " ml</strong></td><td>" + l.notes + "</td>";
+                    var quantitaUnita = l.quantity.toString().includes("ml") ? l.quantity : l.quantity + " ml";
+                    var str = "<td>" + dt + "</td><td><strong style='color:#3a87c4;'> " + quantitaUnita + "</strong></td><td>" + l.notes + "</td>";
                     var r1 = document.createElement('tr'); r1.innerHTML = str; tableMilkBody.appendChild(r1);
                     var r2 = document.createElement('tr'); r2.innerHTML = str; pdfMilkTableBody.appendChild(r2);
 
@@ -607,19 +641,19 @@
                     latteMappaGiorni[giornoKey] = (latteMappaGiorni[giornoKey] || 0) + parseInt(l.quantity);
                 });
             } else {
-                tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata trovata o in caricamento...</td></tr>';
+                tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata inserita.</td></tr>';
                 pdfMilkSection.style.display = "none";
             }
 
-            // Calcolo Medie Giornaliere
+            // Calcolo Medie
             var chiaviGiorni = Object.keys(latteMappaGiorni);
             var sommaMl = 0; var numGiorni = Math.min(chiaviGiorni.length, 7);
             for(var i=0; i<numGiorni; i++) { sommaMl += latteMappaGiorni[chiaviGiorni[i]]; }
             var mediaCalcolata = numGiorni > 0 ? Math.round(sommaMl / numGiorni) : 0;
             document.getElementById('averageLabel').innerText = mediaCalcolata + " ml";
-            document.getElementById('pdfMilkAverage').innerText = "Media Giornaliera Effettiva (Ultimi " + numGiorni + " giorni inseriti): " + mediaCalcolata + " ml";
+            document.getElementById('pdfMilkAverage').innerText = "Media Giornaliera Effettiva (Ultimi " + numGiorni + " giorni): " + mediaCalcolata + " ml";
 
-            // 3. COSTRUZIONE MAPPA UNIFICATA CRONOLOGICA PER IL GRAFICO COMPARATIVO
+            // 3. GENERAZIONE TIMELINE UNIFICATA CRONOLOGICA
             var timelineMappa = {};
             
             if (pesateHistory) {
@@ -655,33 +689,77 @@
                 datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null);
             });
 
-            // GENERAZIONE GRAFICO COMPRENSIVO
+            // NUOVA CONFIGURAZIONE STRUTTURA GRAFICO (AREA SFUMATA + LINEA SOTTILE CON PUNTI GRANDI)
             var ctx = document.getElementById('growthChart').getContext('2d');
             if (myChart) { myChart.destroy(); }
             var isMobile = window.innerWidth < 600;
 
+            // Creazione gradiente azzurro trasparente per l'area del latte
+            var gradientMilk = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientMilk.addColorStop(0, 'rgba(93, 169, 233, 0.45)');
+            gradientMilk.addColorStop(1, 'rgba(93, 169, 233, 0.02)');
+
             myChart = new Chart(ctx, {
-                type: 'line',
                 data: {
-                    labels: giorniOrdinati.length > 0 ? giorniOrdinati : ["In attesa dati..."],
+                    labels: giorniOrdinati.length > 0 ? giorniOrdinati : ["Nessun dato"],
                     datasets: [
-                        { label: 'Peso (kg)', data: datasetPeso.length > 0 ? datasetPeso : [0], borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, pointBackgroundColor: '#ff4f6e', yAxisID: 'yPeso', spanGaps: true },
-                        { label: 'Latte Totale (ml)', data: datasetLatte.length > 0 ? datasetLatte : [0], borderColor: '#5da9e9', backgroundColor: 'rgba(93, 169, 233, 0.1)', borderWidth: 3, pointBackgroundColor: '#2b618c', yAxisID: 'yLatte', type: 'bar', barThickness: 15 }
+                        { 
+                            type: 'line',
+                            label: 'Latte Giornaliero (ml)', 
+                            data: datasetLatte, 
+                            borderColor: '#5da9e9', 
+                            backgroundColor: gradientMilk, 
+                            borderWidth: 2, 
+                            fill: true, // Trasforma il latte in una morbida collina di sfondo
+                            tension: 0.3, // Smussa le curve per renderle più piacevoli
+                            pointBackgroundColor: '#2b618c', 
+                            pointRadius: 4,
+                            yAxisID: 'yLatte', 
+                            spanGaps: true
+                        },
+                        { 
+                            type: 'line',
+                            label: 'Peso Corporeo (kg)', 
+                            data: datasetPeso, 
+                            borderColor: '#ff758c', 
+                            backgroundColor: 'transparent', 
+                            borderWidth: 4, 
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#ff4f6e',
+                            pointBorderWidth: 3,
+                            pointRadius: 6, // Rende i punti del peso macroscopici e facili da premere/vedere
+                            pointHoverRadius: 8,
+                            yAxisID: 'yPeso', 
+                            spanGaps: true
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
                     aspectRatio: isMobile ? 1.3 : 2.2,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 15, font: { weight: 'bold', size: 12 } } }
+                    },
                     scales: {
-                        yPeso: { type: 'linear', position: 'left', title: { display: true, text: 'Peso (kg)', color: '#ff758c' }, grid: { color: '#fcedf0' } },
-                        yLatte: { type: 'linear', position: 'right', title: { display: true, text: 'Latte Giornaliero (ml)', color: '#5da9e9' }, grid: { display: false } }
+                        yPeso: { 
+                            type: 'linear', 
+                            position: 'left', 
+                            title: { display: true, text: 'Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }, 
+                            grid: { color: '#fcedf0' } 
+                        },
+                        yLatte: { 
+                            type: 'linear', 
+                            position: 'right', 
+                            title: { display: true, text: 'Latte Assunto (ml)', color: '#5da9e9', font: { weight: 'bold' } }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
         }
 
-        // SCARICA PDF CON ATTESA DI RENDERING
+        // ESPORTAZIONE PDF
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             var downloadBtn = document.getElementById('downloadPdfBtn');
             downloadBtn.disabled = true; downloadBtn.innerText = "Generazione Grafici e Tabelle...";
