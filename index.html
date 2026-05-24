@@ -93,7 +93,6 @@
         .choice-card.choice-latte h2 { color: var(--milk-color); }
         .choice-card p { font-size: 0.9rem; color: #8c7b7b; }
 
-        /* BOX PDF NELLA SCHERMATA DI LOGIN */
         .pdf-login-box {
             background: linear-gradient(135deg, #ffffff, #fffdfd);
             border: 2px dashed #4cb0ae;
@@ -107,7 +106,7 @@
         .pdf-login-box h3 { font-size: 1.1rem; color: #3a8a88; margin-bottom: 5px; font-weight: 700; }
         .pdf-login-box p { font-size: 0.85rem; color: #6a7e7d; margin-bottom: 15px; }
 
-        /* NAVIGAZIONE INTERNA E STRUTTURA */
+        /* DASHBOARD PRINCIPALE */
         .dashboard-grid {
             display: none; 
             flex-direction: column;
@@ -147,7 +146,6 @@
             gap: 8px;
         }
 
-        /* STILI SPECIFICI PER SEZIONE LATTE */
         body.mode-latte { --background-color: #f0f7ff; }
         body.mode-latte .main-header h1 { color: var(--milk-color); }
         body.mode-latte .card { box-shadow: 0 10px 30px rgba(93, 169, 233, 0.08); border-color: rgba(164, 212, 255, 0.5); }
@@ -294,7 +292,7 @@
 
         <div class="pdf-login-box">
             <h3>Esportazione Rapida</h3>
-            <p>Genera un unico documento PDF contenente il grafico, l'elenco delle pesate e il diario completo del latte.</p>
+            <p>Genera un unico documento PDF contenente il grafico comparativo, l'elenco delle pesate e il diario del latte.</p>
             <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Scarica Report PDF Completo</button>
         </div>
     </div>
@@ -306,7 +304,7 @@
                 <h2 class="card-title">⚖️ Registra Pesata</h2>
                 <form id="weightForm">
                     <div class="form-group">
-                        <label for="date">📅 Data e Ora</label>
+                        <label for="date">📅 Data e Ora Pesata</label>
                         <input type="datetime-local" id="date" required>
                     </div>
                     <div class="form-group">
@@ -335,7 +333,7 @@
 
         <div class="right-column">
             <div class="card">
-                <h2 class="card-title">📈 Curva di Crescita</h2>
+                <h2 class="card-title">📈 Curva Integrata (Peso + Latte)</h2>
                 <div class="chart-wrapper"><canvas id="growthChart"></canvas></div>
             </div>
             <div class="card" style="margin-bottom: 20px;">
@@ -364,24 +362,24 @@
             </div>
 
             <div class="card">
-                <h2 class="card-title">🍼 Inserisci Latte Del Giorno</h2>
+                <h2 class="card-title">🍼 Registra Poppata</h2>
                 <form id="milkForm">
                     <div class="form-group">
-                        <label for="milkDate">📅 Data</label>
-                        <input type="date" id="milkDate" required>
+                        <label for="milkDate">📅 Data e Ora Poppata</label>
+                        <input type="datetime-local" id="milkDate" required>
                     </div>
                     <div class="form-group">
-                        <label for="milkQuantity">🍼 Totale Latte Assunto</label>
+                        <label for="milkQuantity">🍼 Quantità Assunta</label>
                         <div class="weight-input-container">
-                            <input type="number" id="milkQuantity" min="0" placeholder="es. 620" inputmode="numeric" required>
+                            <input type="number" id="milkQuantity" min="0" placeholder="es. 90" inputmode="numeric" required>
                             <span class="weight-unit" style="color: #9ac2e6;">ml</span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="milkNotes">📝 Note Giornaliere</label>
-                        <input type="text" id="milkNotes" placeholder="es. 6 poppate, sonno regolare">
+                        <label for="milkNotes">📝 Note Poppata</label>
+                        <input type="text" id="milkNotes" placeholder="es. Al seno, faticato, vorace...">
                     </div>
-                    <button type="submit" id="submitMilkBtn">Salva Giorno 🍼</button>
+                    <button type="submit" id="submitMilkBtn">Salva Poppata 🍼</button>
                 </form>
                 <div id="statusMilk" class="status-message"></div>
             </div>
@@ -389,11 +387,11 @@
 
         <div class="right-column">
             <div class="card" style="margin-bottom: 20px;">
-                <h2 class="card-title">📊 Registro Quantità Giornaliere</h2>
+                <h2 class="card-title">📊 Registro Cronologico Poppate</h2>
                 <div class="table-scroll">
                     <table>
                         <thead>
-                            <tr><th>Data</th><th>Quantità Totale</th><th>Note / Appunti</th></tr>
+                            <tr><th>Data e Ora</th><th>Quantità</th><th>Note / Appunti</th></tr>
                         </thead>
                         <tbody id="tableMilkBody">
                             <tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Caricamento storico... 🍼</td></tr>
@@ -410,7 +408,7 @@
             <p>✨ Diario ufficiale e grafico della crescita della nostra bimba ✨</p>
         </div>
         
-        <div class="pdf-section-title">📈 Curva di Crescita Progressiva</div>
+        <div class="pdf-section-title">📈 Grafico Comparativo (Crescita & Alimentazione)</div>
         <div style="background: white; padding: 20px; border-radius: 20px; border: 1px solid #ffe4e1; margin-bottom: 20px;">
             <img id="pdf-chart-image" style="width: 100%; height: auto; display: block;" />
         </div>
@@ -424,11 +422,11 @@
         </table>
 
         <div id="pdfMilkSection" style="display:none; margin-top: 30px;">
-            <div class="pdf-section-title pdf-milk-title">🍼 Diario dei Pasti e Consumo Latte</div>
+            <div class="pdf-section-title pdf-milk-title">🍼 Diario Cronologico Poppate</div>
             <div class="pdf-average-box" id="pdfMilkAverage">Media Giornaliera: -</div>
             <table class="pdf-table pdf-milk-table">
                 <thead>
-                    <tr><th>Data</th><th>Quantità Totale Assunta</th><th>Note di Giornata</th></tr>
+                    <tr><th>Data e Ora</th><th>Quantità Assunta</th><th>Note di Giornata</th></tr>
                 </thead>
                 <tbody id="pdfMilkTableBody"></tbody>
             </table>
@@ -440,8 +438,7 @@
         var latteHistory = [];
         var myChart = null;
 
-        // ⚠️ INDIRIZZO SCRIPT GOOGLE
-        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWo_0GczG1sa8dwqvaP3tWWQr0Hgdx4kQOYVEPJBX3G5uN3S42cHyitbAyYH5eObtr/exec";
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzA3jdsRBKm0K9bX_lxzgwTQCHoKssR63eL3hC3VhwVmZpL9APhUdugCZ54_J36hODy/exec";
 
         function enterSection(section) {
             document.getElementById('login-screen').style.display = 'none';
@@ -480,13 +477,13 @@
 
         function pulisciData(dataStr) {
             if (!dataStr) return "-";
-            if (dataStr.includes("GMT") || dataStr.includes("Ora legale")) {
+            if (dataStr.includes("GMT") || dataStr.includes("Ora legale") || dataStr.includes("-") || dataStr.includes("/")) {
                 try {
-                    var parsedDate = new Date(dataStr);
+                    var parsedDate = new Date(dataStr.replace(/-/g, "/"));
                     if (!isNaN(parsedDate.getTime())) {
                         return parsedDate.toLocaleDateString('it-IT') + ' ' + parsedDate.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
                     }
-                } catch(e) { console.error(e); }
+                } catch(e) {}
             }
             return dataStr;
         }
@@ -498,8 +495,7 @@
                 if(data) {
                     pesateHistory = data.pesate || [];
                     latteHistory = data.latte || [];
-                    renderInterfacciaPeso();
-                    renderInterfacciaLatte();
+                    aggiornaGraficoEInterfacce();
                 }
             })
             .catch(error => {
@@ -513,11 +509,11 @@
             var now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('date').value = now.toISOString().slice(0, 16);
-            document.getElementById('milkDate').value = now.toISOString().slice(0, 10);
+            document.getElementById('milkDate').value = now.toISOString().slice(0, 16);
             caricaTuttiIDati();
         });
 
-        // FORM PESO INVIATO
+        // FORM PESO
         document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
             var submitBtn = document.getElementById('submitBtn');
@@ -533,7 +529,7 @@
             var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
             pesateHistory.unshift({ date: dataFormattata, weight: parseFloat(weightValue).toFixed(3) + " kg", moment: momentValue, notes: notesValue });
-            renderInterfacciaPeso();
+            aggiornaGraficoEInterfacce();
 
             fetch(SCRIPT_URL, {
                 method: 'POST', mode: 'no-cors', cache: 'no-cache',
@@ -543,13 +539,11 @@
                 statusDiv.innerText = "Salvataggio eseguito! 💖"; statusDiv.className = 'status-message status-success';
                 document.getElementById('weight').value = ''; document.getElementById('notes').value = '';
             })
-            .catch(() => {
-                statusDiv.innerText = "Errore di salvataggio. ❌"; statusDiv.className = 'status-message status-error';
-            })
+            .catch(() => { statusDiv.innerText = "Errore. ❌"; statusDiv.className = 'status-message status-error'; })
             .finally(() => { submitBtn.disabled = false; submitBtn.innerText = 'Salva nei Dati ✨'; });
         });
 
-        // FORM LATTE INVIATO
+        // FORM LATTE
         document.getElementById('milkForm').addEventListener('submit', function(e) {
             e.preventDefault();
             var submitBtn = document.getElementById('submitMilkBtn');
@@ -560,134 +554,99 @@
             var milkQuantity = document.getElementById('milkQuantity').value;
             var milkNotes = document.getElementById('milkNotes').value || "-";
 
-            var dataParti = milkDate.split("-");
-            var dataFormattataCorta = dataParti.length === 3 ? dataParti[2]+"/"+dataParti[1]+"/"+dataParti[0] : milkDate;
+            var d = new Date(milkDate);
+            var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            latteHistory.unshift({ date: dataFormattataCorta, quantity: parseInt(milkQuantity), notes: milkNotes });
-            renderInterfacciaLatte();
+            latteHistory.unshift({ date: dataFormattata, quantity: parseInt(milkQuantity), notes: milkNotes });
+            aggiornaGraficoEInterfacce();
 
             fetch(SCRIPT_URL, {
                 method: 'POST', mode: 'no-cors', cache: 'no-cache',
                 body: JSON.stringify({ date: milkDate, quantity: milkQuantity, notes: milkNotes })
             })
             .then(() => {
-                statusDiv.innerText = "Dato del latte memorizzato! 🍼"; statusDiv.className = 'status-message status-success';
+                statusDiv.innerText = "Poppata memorizzata! 🍼"; statusDiv.className = 'status-message status-success';
                 document.getElementById('milkQuantity').value = ''; document.getElementById('milkNotes').value = '';
             })
-            .catch(() => {
-                statusDiv.innerText = "Errore di connessione. ❌"; statusDiv.className = 'status-message status-error';
-            })
-            .finally(() => { submitBtn.disabled = false; submitBtn.innerText = 'Salva Giorno 🍼'; });
+            .catch(() => { statusDiv.innerText = "Errore. ❌"; statusDiv.className = 'status-message status-error'; })
+            .finally(() => { submitBtn.disabled = false; submitBtn.innerText = 'Salva Poppata 🍼'; });
         });
 
-        function renderInterfacciaPeso() {
+        function aggiornaGraficoEInterfacce() {
+            // 1. RENDER TABELLA PESO
             var tableBody = document.getElementById('tableBody');
             var pdfTableBody = document.getElementById('pdfTableBody');
             tableBody.innerHTML = ""; pdfTableBody.innerHTML = "";
-
-            if (pesateHistory.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 20px;">Nessun dato.</td></tr>';
-                return;
+            
+            if (pesateHistory.length > 0) {
+                pesateHistory.forEach(p => {
+                    var dt = pulisciData(p.date);
+                    var str = "<td>" + dt + "</td><td><strong>" + p.weight + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
+                    var r1 = document.createElement('tr'); r1.innerHTML = str; tableBody.appendChild(r1);
+                    var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableBody.appendChild(r2);
+                });
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 20px;">Nessun dato peso.</td></tr>';
             }
 
-            var chartLabels = []; var chartWeights = [];
-
-            pesateHistory.forEach(p => {
-                var dataPulita = pulisciData(p.date);
-                var stringaR = "<td>" + dataPulita + "</td><td><strong>" + p.weight + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
-                
-                var r1 = document.createElement('tr'); r1.innerHTML = stringaR; tableBody.appendChild(r1);
-                var r2 = document.createElement('tr'); r2.innerHTML = stringaR; pdfTableBody.appendChild(r2);
-
-                var pesoNum = parseFloat(p.weight.replace(" kg", ""));
-                if(!isNaN(pesoNum)) {
-                    chartLabels.unshift(dataPulita.split(" ")[0]); 
-                    chartWeights.unshift(pesoNum);
-                }
-            });
-
-            var ctx = document.getElementById('growthChart').getContext('2d');
-            if (myChart) { myChart.destroy(); }
-            var isMobile = window.innerWidth < 600;
-
-            myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{ data: chartWeights, borderColor: '#ff758c', backgroundColor: 'rgba(255, 141, 161, 0.12)', borderWidth: 2.5, pointBackgroundColor: '#ff4f6e', radius: isMobile ? 3 : 4, tension: 0.15 }]
-                },
-                options: { responsive: true, maintainAspectRatio: true, aspectRatio: isMobile ? 1.4 : 2, scales: { y: { beginAtZero: false, grid: { color: '#fcedf0' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
-            });
-        }
-
-        function renderInterfacciaLatte() {
+            // 2. RENDER TABELLA LATTE
             var tableMilkBody = document.getElementById('tableMilkBody');
             var pdfMilkTableBody = document.getElementById('pdfMilkTableBody');
             var pdfMilkSection = document.getElementById('pdfMilkSection');
+            tableMilkBody.innerHTML = ""; pdfMilkTableBody.innerHTML = "";
 
-            tableMilkBody.innerHTML = "";
-            pdfMilkTableBody.innerHTML = "";
+            var latteMappaGiorni = {};
+            if (latteHistory.length > 0) {
+                pdfMilkSection.style.display = "block";
+                latteHistory.forEach(l => {
+                    var dt = pulisciData(l.date);
+                    var str = "<td>" + dt + "</td><td><strong style='color:#3a87c4;'>" + l.quantity + " ml</strong></td><td>" + l.notes + "</td>";
+                    var r1 = document.createElement('tr'); r1.innerHTML = str; tableMilkBody.appendChild(r1);
+                    var r2 = document.createElement('tr'); r2.innerHTML = str; pdfMilkTableBody.appendChild(r2);
 
-            if (latteHistory.length === 0) {
-                tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessun inserimento presente.</td></tr>';
-                document.getElementById('averageLabel').innerText = "0 ml";
+                    var giornoKey = dt.split(" ")[0];
+                    latteMappaGiorni[giornoKey] = (latteMappaGiorni[giornoKey] || 0) + parseInt(l.quantity);
+                });
+            } else {
+                tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata.</td></tr>';
                 pdfMilkSection.style.display = "none";
-                return;
             }
 
-            pdfMilkSection.style.display = "block";
-            var sommaml = 0; var conteggioGiorni = 0;
+            // Calcolo Medie Giornaliere
+            var chiaviGiorni = Object.keys(latteMappaGiorni);
+            var sommaMl = 0; var numGiorni = Math.min(chiaviGiorni.length, 7);
+            for(var i=0; i<numGiorni; i++) { sommaMl += latteMappaGiorni[chiaviGiorni[i]]; }
+            var mediaCalcolata = numGiorni > 0 ? Math.round(sommaMl / numGiorni) : 0;
+            document.getElementById('averageLabel').innerText = mediaCalcolata + " ml";
+            document.getElementById('pdfMilkAverage').innerText = "Media Giornaliera Effettiva (Ultimi " + numGiorni + " giorni inseriti): " + mediaCalcolata + " ml";
 
-            latteHistory.forEach(l => {
-                var dataG = l.date.includes("T") ? l.date.split("T")[0] : l.date;
-                var rContenuto = "<td>"+dataG+"</td><td><strong style='color:#3a87c4;'>"+l.quantity+" ml</strong></td><td>"+l.notes+"</td>";
-                
-                var r1 = document.createElement('tr'); r1.innerHTML = rContenuto; tableMilkBody.appendChild(r1);
-                var r2 = document.createElement('tr'); r2.innerHTML = rContenuto; pdfMilkTableBody.appendChild(r2);
-
-                if (conteggioGiorni < 7) {
-                    sommaml += parseInt(l.quantity);
-                    conteggioGiorni++;
+            // 3. COSTRUZIONE MAPPA UNIFICATA CRONOLOGICA PER IL GRAFICO COMPARATIVO
+            var timelineMappa = {};
+            
+            pesateHistory.forEach(p => {
+                var dSolo = pulisciData(p.date).split(" ")[0];
+                var pNum = parseFloat(p.weight.replace(" kg", ""));
+                if(!isNaN(pNum)) {
+                    if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
+                    timelineMappa[dSolo].peso = pNum; // Tiene l'ultimo caricato della giornata
                 }
             });
 
-            var mediaCalcolata = conteggioGiorni > 0 ? Math.round(sommaml / conteggioGiorni) : 0;
-            document.getElementById('averageLabel').innerText = mediaCalcolata + " ml";
-            document.getElementById('pdfMilkAverage').innerText = "Media Giornaliera Calcolata (Ultima settimana): " + mediaCalcolata + " ml";
-        }
+            // Somma le quantità di latte dello stesso giorno per fare un confronto sensato sul grafico giornaliero
+            latteHistory.forEach(l => {
+                var dSolo = pulisciData(l.date).split(" ")[0];
+                var lNum = parseInt(l.quantity);
+                if(!isNaN(lNum)) {
+                    if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
+                    timelineMappa[dSolo].latte += lNum;
+                }
+            });
 
-        // GENERAZIONE PDF COMPLETO
-        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            if (pesateHistory.length === 0) { alert("Attenzione: non ci sono ancora dati inseriti per generare il PDF!"); return; }
-            var downloadBtn = document.getElementById('downloadPdfBtn');
-            downloadBtn.disabled = true; downloadBtn.innerText = "Esportazione in corso...";
-            document.getElementById('pdf-chart-image').src = myChart.toBase64Image();
-            
-            setTimeout(function() {
-                html2canvas(document.getElementById('pdf-export-area'), { scale: 2, useCORS: true }).then(function(canvas) {
-                    var imgData = canvas.toDataURL('image/jpeg', 0.98);
-                    var pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
-                    var widthInMm = pdf.internal.pageSize.getWidth();
-                    var heightInMm = pdf.internal.pageSize.getHeight();
-                    var imgHeightInMm = (canvas.height * widthInMm) / canvas.width;
-                    
-                    var heightLeft = imgHeightInMm;
-                    var position = 0;
+            var giorniOrdinati = Object.keys(timelineMappa).sort(function(a,b){
+                var pA = a.split("/"); var pB = b.split("/");
+                return new Date(pA[2], pA[1]-1, pA[0]) - new Date(pB[2], pB[1]-1, pB[0]);
+            });
 
-                    pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
-                    heightLeft -= heightInMm;
-
-                    while (heightLeft >= 0) {
-                        position = heightLeft - imgHeightInMm;
-                        pdf.addPage();
-                        pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
-                        heightLeft -= heightInMm;
-                    }
-                    
-                    pdf.save('Diario_Completo_Baby.pdf');
-                }).finally(() => { downloadBtn.disabled = false; downloadBtn.innerText = '📥 Scarica Report PDF Completo'; });
-            }, 600);
-        });
-    </script>
-</body>
-</html>
+            var datasetPeso = []; var datasetLatte = [];
+            giorniOrdinati.forEach(g => {
+                datasetPeso.push(timelineMappa
