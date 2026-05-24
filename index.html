@@ -220,19 +220,13 @@
 
         .table-scroll {
             max-height: 280px; 
-            overflow-y: auto !important;  
-            overflow-x: hidden !important;    
+            overflow-y: auto;  
+            overflow-x: hidden;    
             border-radius: 14px;
             border: 1px solid #f7e4e6;
-            -webkit-overflow-scrolling: touch !important; 
+            -webkit-overflow-scrolling: touch; 
         }
         body.mode-latte .table-scroll { border-color: #deeefa; }
-
-        .table-scroll::-webkit-scrollbar { width: 6px; display: block !important; }
-        .table-scroll::-webkit-scrollbar-track { background: #fff0f2; border-radius: 10px; }
-        body.mode-latte .table-scroll::-webkit-scrollbar-track { background: #edf5fc; }
-        .table-scroll::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 10px; }
-        body.mode-latte .table-scroll::-webkit-scrollbar-thumb { background: var(--milk-light); border-radius: 10px; }
 
         table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
         th, td { padding: 12px 10px; border-bottom: 1px solid #fdf1f2; font-size: 0.85rem; vertical-align: middle; word-wrap: break-word; }
@@ -240,27 +234,28 @@
         th { background-color: #fff0f2; color: #e6677e; font-weight: 700; position: sticky; top: 0; z-index: 1; }
         body.mode-latte th { background-color: #edf5fc; color: #468ac4; }
 
-        .col-data-ora { width: 33%; }
+        .col-data-ora { width: 35%; }
         .col-valore { width: 20%; }
         .col-momento { width: 25%; }
-        .col-note { width: 22%; }
+        .col-note { width: 20%; }
 
-        .col-latte-data { width: 33%; }
-        .col-latte-val { width: 20%; }
-        .col-latte-note { width: 47%; }
-
-        /* AREA DI ESPORTAZIONE INVISIBILE AL CLIENT MA LETTA DAL GENERATORE PDF */
+        /* AREA DI ESPORTAZIONE STRUTTURATA PER IL PDF */
         #pdf-export-container {
-            display: none;
-            width: 750px;
-            padding: 30px;
-            background-color: #fff6f7;
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            display: flex;
             flex-direction: column;
-            gap: 25px;
+            width: 700px;
+            padding: 20px;
+            background-color: #fff6f7;
+            gap: 20px;
         }
         #pdf-export-container .card {
             box-shadow: none !important;
             border: 1px solid rgba(255, 141, 161, 0.2) !important;
+            background: #ffffff !important;
+            page-break-inside: avoid;
         }
         #pdf-export-container .table-scroll {
             max-height: none !important;
@@ -409,9 +404,9 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="col-latte-data">📅 Data e Ora</th>
-                                <th class="col-latte-val">🍼 Quantità</th>
-                                <th class="col-latte-note">📝 Note / Appunti</th>
+                                <th style="width:35%;">📅 Data e Ora</th>
+                                <th style="width:20%;">🍼 Quantità</th>
+                                <th style="width:45%;">📝 Note / Appunti</th>
                             </tr>
                         </thead>
                         <tbody id="tableMilkBody">
@@ -425,28 +420,28 @@
 
     <div id="pdf-export-container">
         <div style="text-align: center; margin-bottom: 10px;">
-            <h1 style="color: var(--primary-color); font-size: 2.2rem; font-weight: 800;">Il Diario di Baby 👶🏼🎀</h1>
-            <p style="color: #7a6666; font-size: 1rem; font-style: italic; margin-top: 5px;">Report Cronologico di Accrescimento ed Alimentazione 📋</p>
-            <div style="height: 2px; background-color: var(--primary-light); margin: 15px auto 5px auto; width: 90%;"></div>
+            <h1 style="color: #ff8da1; font-size: 2.2rem; font-weight: 800; margin-bottom: 5px;">Il Diario di Baby 👶🏼🎀</h1>
+            <p style="color: #7a6666; font-size: 1rem; font-style: italic;">Report Cronologico di Accrescimento ed Alimentazione 📋</p>
+            <div style="height: 2px; background-color: #ffb6c1; margin: 15px auto; width: 90%;"></div>
         </div>
         
         <div class="card">
-            <h2 class="card-title">📈 Curva di Crescita e Trend Alimentare</h2>
-            <div style="width: 100%; height: 320px; position: relative;">
-                <canvas id="pdfGrowthChart"></canvas>
+            <h2 class="card-title" style="color:#ff8da1;">📈 Curva di Crescita e Trend Alimentare</h2>
+            <div style="width: 100%; height: 350px; position: relative; background: #ffffff;">
+                <canvas id="pdfGrowthChart" style="width: 100%; height: 100%;"></canvas>
             </div>
         </div>
 
         <div class="card">
-            <h2 class="card-title">⚖️ Storico Integrale delle Pesate</h2>
+            <h2 class="card-title" style="color:#ff8da1;">⚖️ Storico Integrale delle Pesate</h2>
             <div class="table-scroll">
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-data-ora" style="background-color: #fff0f2; color: #e6677e;">📅 Data e Ora</th>
-                            <th class="col-valore" style="background-color: #fff0f2; color: #e6677e;">⚖️ Peso</th>
-                            <th class="col-momento" style="background-color: #fff0f2; color: #e6677e;">🍼 Momento</th>
-                            <th class="col-note" style="background-color: #fff0f2; color: #e6677e;">📝 Note</th>
+                            <th style="width: 35%; background-color: #fff0f2; color: #e6677e;">📅 Data e Ora</th>
+                            <th style="width: 20%; background-color: #fff0f2; color: #e6677e;">⚖️ Peso</th>
+                            <th style="width: 25%; background-color: #fff0f2; color: #e6677e;">🍼 Momento</th>
+                            <th style="width: 20%; background-color: #fff0f2; color: #e6677e;">📝 Note</th>
                         </tr>
                     </thead>
                     <tbody id="pdfTableBody"></tbody>
@@ -454,18 +449,18 @@
             </div>
         </div>
 
-        <div class="card" style="background-color: #f0f7ff;">
-            <h2 class="card-title" style="color: var(--milk-color);">🍼 Registro Cronologico delle Poppate</h2>
-            <div class="average-container" style="margin-bottom: 15px; padding: 10px;">
-                🍼 Volume medio calcolato (Ultimi 7 giorni attivi): <strong id="pdfAverageLabel">0 ml</strong>
+        <div class="card" style="background-color: #f0f7ff !important;">
+            <h2 class="card-title" style="color: #5da9e9;">🍼 Diario Cronologico Poppate</h2>
+            <div class="average-container" style="margin-bottom: 15px; padding: 12px; background: #e6f2ff; border: 1px solid #a4d4ff; color: #2b618c; border-radius: 14px;">
+                Media Giornaliera Effettiva: <strong id="pdfAverageLabel">0 ml</strong>
             </div>
             <div class="table-scroll">
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-latte-data" style="background-color: #edf5fc; color: #468ac4;">📅 Data e Ora</th>
-                            <th class="col-latte-val" style="background-color: #edf5fc; color: #468ac4;">🍼 Quantità</th>
-                            <th class="col-latte-note" style="background-color: #edf5fc; color: #468ac4;">📝 Note / Appunti</th>
+                            <th style="width: 35%; background-color: #edf5fc; color: #468ac4;">📅 Data e Ora</th>
+                            <th style="width: 20%; background-color: #edf5fc; color: #468ac4;">Quantità Assunta</th>
+                            <th style="width: 45%; background-color: #edf5fc; color: #468ac4;">Note di Giornata</th>
                         </tr>
                     </thead>
                     <tbody id="pdfTableMilkBody"></tbody>
@@ -478,7 +473,6 @@
         var pesateHistory = [];
         var latteHistory = [];
         var myChart = null;
-        var pdfChart = null;
         var mediaCalcolataGlobal = 0;
 
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWo_0GczG1sa8dwqvaP3tWWQr0Hgdx4kQOYVEPJBX3G5uN3S42cHyitbAyYH5eObtr/exec";
@@ -523,6 +517,7 @@
             'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
         };
 
+        // RIGIDO SISTEMA DI SPAZIATURA PER EVITARE DATE ACCAVALLATE NEL PDF
         function pulisciData(dataStr) {
             if (!dataStr) return "-";
             var s = dataStr.toString().trim();
@@ -566,8 +561,8 @@
             .then(res => res.json())
             .then(data => {
                 if(data) {
-                    pesateHistory = (data.pesate || []).filter(p => p.weight && !p.weight.toString().includes("NaN") && p.weight.toString().trim() !== "" && p.date);
-                    latteHistory = (data.latte || []).filter(l => l.quantity && !isNaN(parseInt(l.quantity)) && l.date);
+                    pesateHistory = (data.pesate || []).filter(p => p.peso && !p.peso.toString().includes("NaN") && p.peso.toString().trim() !== "" && p.date);
+                    latteHistory = (data.latte || []).filter(l => l.quantita && !isNaN(parseInt(l.quantita)) && l.date);
                 }
                 aggiornaGraficoEInterfacce();
             })
@@ -599,12 +594,12 @@
             var d = new Date(dateValue);
             var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            pesateHistory.unshift({ date: dataFormattata, weight: parseFloat(weightValue).toFixed(3) + " kg", moment: momentValue, notes: notesValue });
+            pesateHistory.unshift({ date: dataFormattata, peso: parseFloat(weightValue).toFixed(3) + " kg", momento: momentValue, nota: notesValue });
             aggiornaGraficoEInterfacce();
 
             fetch(SCRIPT_URL, {
                 method: 'POST', mode: 'no-cors', cache: 'no-cache',
-                body: JSON.stringify({ date: dateValue, weight: weightValue, moment: momentValue, notes: notesValue })
+                body: JSON.stringify({ date: dateValue, peso: weightValue, momento: momentValue, nota: notesValue })
             })
             .then(() => {
                 statusDiv.innerText = "Salvataggio eseguito! 💖"; statusDiv.className = 'status-message status-success';
@@ -627,12 +622,12 @@
             var d = new Date(milkDate);
             var dataFormattata = d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-            latteHistory.unshift({ date: dataFormattata, quantity: parseInt(milkQuantity), notes: milkNotes });
+            latteHistory.unshift({ date: dataFormattata, quantita: parseInt(milkQuantity), nota: milkNotes });
             aggiornaGraficoEInterfacce();
 
             fetch(SCRIPT_URL, {
                 method: 'POST', mode: 'no-cors', cache: 'no-cache',
-                body: JSON.stringify({ date: milkDate, quantity: milkQuantity, notes: milkNotes })
+                body: JSON.stringify({ date: milkDate, quantita: milkQuantity, nota: milkNotes })
             })
             .then(() => {
                 statusDiv.innerText = "Poppata memorizzata! 🍼"; statusDiv.className = 'status-message status-success';
@@ -642,31 +637,6 @@
             .finally(() => { submitBtn.disabled = false; submitBtn.innerText = 'Salva Poppata 🍼'; });
         });
 
-        function creaDatasetComuni(giorniOrdinati, timelineMappa) {
-            var datasetPeso = []; var datasetLatte = [];
-            giorniOrdinati.forEach(g => {
-                datasetPeso.push(timelineMappa[g].peso);
-                datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null);
-            });
-            return { peso: datasetPeso, latte: datasetLatte };
-        }
-
-        function ottieniConfigurazioneScale() {
-            return {
-                yPeso: { 
-                    type: 'linear', 
-                    position: 'left', 
-                    title: { display: true, text: 'Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }
-                },
-                yLatte: { 
-                    type: 'linear', 
-                    position: 'right', 
-                    title: { display: true, text: 'Latte Assunto (ml)', color: '#5da9e9', font: { weight: 'bold' } }, 
-                    grid: { display: false } 
-                }
-            };
-        }
-
         function aggiornaGraficoEInterfacce() {
             var tableBody = document.getElementById('tableBody');
             var pdfTableBody = document.getElementById('pdfTableBody');
@@ -675,8 +645,9 @@
             if (pesateHistory && pesateHistory.length > 0) {
                 pesateHistory.forEach(p => {
                     var dt = pulisciData(p.date);
-                    var pesoPulito = p.weight.toString().includes("kg") ? p.weight : parseFloat(p.weight).toFixed(3) + " kg";
-                    var str = "<td>" + dt + "</td><td><strong>" + pesoPulito + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
+                    var pesoPulito = p.peso.toString().includes("kg") ? p.peso : parseFloat(p.peso).toFixed(3) + " kg";
+                    var notaPulita = p.nota || "-";
+                    var str = "<td>" + dt + "</td><td><strong>" + pesoPulito + "</strong></td><td>" + p.momento + "</td><td>" + notaPulita + "</td>";
                     
                     var r1 = document.createElement('tr'); r1.innerHTML = str; tableBody.appendChild(r1);
                     var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableBody.appendChild(r2);
@@ -694,14 +665,15 @@
             if (latteHistory && latteHistory.length > 0) {
                 latteHistory.forEach(l => {
                     var dt = pulisciData(l.date);
-                    var quantitaUnita = l.quantity.toString().includes("ml") ? l.quantity : l.quantity + " ml";
-                    var str = "<td>" + dt + "</td><td><strong style='color:#3a87c4;'> " + quantitaUnita + "</strong></td><td>" + l.notes + "</td>";
+                    var quantitaUnita = l.quantita.toString().includes("ml") ? l.quantita : l.quantita + " ml";
+                    var notaPulita = l.nota || "-";
+                    var str = "<td>" + dt + "</td><td><strong style='color:#3a87c4;'>" + quantitaUnita + "</strong></td><td>" + notaPulita + "</td>";
                     
                     var r1 = document.createElement('tr'); r1.innerHTML = str; tableMilkBody.appendChild(r1);
                     var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableMilkBody.appendChild(r2);
 
                     var giornoKey = dt.split(" ")[0];
-                    latteMappaGiorni[giornoKey] = (latteMappaGiorni[giornoKey] || 0) + parseInt(l.quantity);
+                    latteMappaGiorni[giornoKey] = (latteMappaGiorni[giornoKey] || 0) + parseInt(l.quantita);
                 });
             } else {
                 var vuotoLatteStr = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata inserita. 🍼</td></tr>';
@@ -720,7 +692,7 @@
             if (pesateHistory) {
                 pesateHistory.forEach(p => {
                     var dSolo = pulisciData(p.date).split(" ")[0];
-                    var pNum = parseFloat(p.weight.toString().replace(" kg", ""));
+                    var pNum = parseFloat(p.peso.toString().replace(" kg", ""));
                     if(!isNaN(pNum)) {
                         if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
                         timelineMappa[dSolo].peso = pNum;
@@ -731,7 +703,7 @@
             if (latteHistory) {
                 latteHistory.forEach(l => {
                     var dSolo = pulisciData(l.date).split(" ")[0];
-                    var lNum = parseInt(l.quantity);
+                    var lNum = parseInt(l.quantita);
                     if(!isNaN(lNum)) {
                         if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 };
                         timelineMappa[dSolo].latte += lNum;
@@ -744,92 +716,112 @@
                 return new Date(pA[2], pA[1]-1, pA[0]) - new Date(pB[2], pB[1]-1, pB[0]);
             });
 
-            var datasets = creaDatasetComuni(giorniOrdinati, timelineMappa);
+            var datasetPeso = []; var datasetLatte = [];
+            giorniOrdinati.forEach(g => {
+                datasetPeso.push(timelineMappa[g].peso);
+                datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null);
+            });
             var etichetteX = giorniOrdinati.length > 0 ? giorniOrdinati : ["Nessun dato"];
 
-            var ctx = document.getElementById('growthChart').getContext('2d');
-            if (myChart) { myChart.destroy(); }
-            
             var configData = {
                 labels: etichetteX,
                 datasets: [
                     { 
-                        label: 'Peso Corporeo (kg)', data: datasets.peso, borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, 
+                        label: 'Peso Corporeo (kg)', data: datasetPeso, borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, 
                         pointBackgroundColor: '#ffffff', pointBorderColor: '#ff4f6e', pointBorderWidth: 2, pointRadius: 5, yAxisID: 'yPeso', spanGaps: true
                     },
                     { 
-                        label: 'Latte Giornaliero (ml)', data: datasets.latte, borderColor: '#5da9e9', backgroundColor: 'transparent', borderWidth: 3, 
+                        label: 'Latte Giornaliero (ml)', data: datasetLatte, borderColor: '#5da9e9', backgroundColor: 'transparent', borderWidth: 3, 
                         pointBackgroundColor: '#ffffff', pointBorderColor: '#2b618c', pointBorderWidth: 2, pointRadius: 5, yAxisID: 'yLatte', spanGaps: true
                     }
                 ]
             };
 
+            var scaleOptions = {
+                yPeso: { type: 'linear', position: 'left', title: { display: true, text: 'Peso (kg)', color: '#ff758c' } },
+                yLatte: { type: 'linear', position: 'right', title: { display: true, text: 'Latte (ml)', color: '#5da9e9' }, grid: { display: false } }
+            };
+
+            var ctx = document.getElementById('growthChart').getContext('2d');
+            if (myChart) { myChart.destroy(); }
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: configData,
                 options: {
                     responsive: true, maintainAspectRatio: true, aspectRatio: window.innerWidth < 600 ? 1.3 : 2.2,
-                    plugins: { legend: { position: 'top', labels: { font: { weight: 'bold', size: 12 } } } },
-                    scales: ottieniConfigurazioneScale()
-                }
-            });
-
-            // CREAZIONE SIMULTANEA DEL GRAFICO COPIATO PER IL PDF (SBLOCCA IL BUG DEI GRAFICI ARRESTATI)
-            var pdfCtx = document.getElementById('pdfGrowthChart').getContext('2d');
-            if (pdfChart) { pdfChart.destroy(); }
-            pdfChart = new Chart(pdfCtx, {
-                type: 'line',
-                data: configData,
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    animation: false, // Disattivata per rendere lo scatto fotografico immediato
-                    plugins: { legend: { position: 'top', labels: { font: { weight: 'bold', size: 11 } } } },
-                    scales: ottieniConfigurazioneScale()
+                    scales: scaleOptions
                 }
             });
         }
 
-        // ==========================================================================
-        // STRATEGIA HTML2PDF: ACQUISIZIONE REALE IN ALTA DEFINIZIONE SENZA REDIRECT
-        // ==========================================================================
+        // FUNZIONE DI ESPORTAZIONE AGGIORNATA PER RENDERING COMPLETO DEL GRAFICO
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             var btn = document.getElementById('downloadPdfBtn');
-            btn.disabled = true;
-            btn.innerText = "Cattura Grafica... ⏳";
+            btn.disabled = true; btn.innerText = "Cattura Grafica... ⏳";
 
-            // Sblocchiamo temporaneamente il blocco invisibile per consentire ad html2pdf di scansionarlo
             var pdfContainer = document.getElementById('pdf-export-container');
-            pdfContainer.style.display = 'flex';
+            
+            // Creiamo un canvas temporaneo e istanziamo il grafico con le animazioni disattivate
+            var pdfCanvas = document.getElementById('pdfGrowthChart');
+            var tempCtx = pdfCanvas.getContext('2d');
+            
+            var timelineMappa = {};
+            pesateHistory.forEach(p => {
+                var dSolo = pulisciData(p.date).split(" ")[0];
+                var pNum = parseFloat(p.peso.toString().replace(" kg", ""));
+                if(!isNaN(pNum)) { if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 }; timelineMappa[dSolo].peso = pNum; }
+            });
+            latteHistory.forEach(l => {
+                var dSolo = pulisciData(l.date).split(" ")[0];
+                var lNum = parseInt(l.quantita);
+                if(!isNaN(lNum)) { if(!timelineMappa[dSolo]) timelineMappa[dSolo] = { peso: null, latte: 0 }; timelineMappa[dSolo].latte += lNum; }
+            });
+            var giorniOrdinati = Object.keys(timelineMappa).sort(function(a,b){
+                var pA = a.split("/"); var pB = b.split("/"); return new Date(pA[2], pA[1]-1, pA[0]) - new Date(pB[2], pB[1]-1, pB[0]);
+            });
+            var datasetPeso = []; var datasetLatte = [];
+            giorniOrdinati.forEach(g => { datasetPeso.push(timelineMappa[g].peso); datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null); });
 
-            // Diamo un micro-istante al motore grafico di allineare i dati della tabella
+            var pdfChartInstance = new Chart(tempCtx, {
+                type: 'line',
+                data: {
+                    labels: giorniOrdinati.length > 0 ? giorniOrdinati : ["Nessun dato"],
+                    datasets: [
+                        { label: 'Peso Corporeo (kg)', data: datasetPeso, borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, pointRadius: 4, yAxisID: 'yPeso', spanGaps: true },
+                        { label: 'Latte Giornaliero (ml)', data: datasetLatte, borderColor: '#5da9e9', backgroundColor: 'transparent', borderWidth: 3, pointRadius: 4, yAxisID: 'yLatte', spanGaps: true }
+                    ]
+                },
+                options: {
+                    responsive: false, maintainAspectRatio: false, animation: false,
+                    scales: {
+                        yPeso: { type: 'linear', position: 'left', title: { display: true, text: 'Peso (kg)' } },
+                        yLatte: { type: 'linear', position: 'right', title: { display: true, text: 'Latte (ml)' }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // Piccolo ritardo per dare il tempo a html2pdf di processare il canvas renderizzato senza animazioni
             setTimeout(function() {
                 var opzioniScatto = {
-                    margin: [10, 10, 10, 10],
+                    margin: [8, 8, 8, 8],
                     filename: 'diario_crescita_baby.pdf',
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2, // Raddoppia la definizione per rendere i testi nitidissimi
-                        useCORS: true, 
-                        logging: false 
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['avoid-all', 'css'] } // Evita che i titoli o le righe vengano tagliati a metà foglio
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
                 html2pdf().set(opzioniScatto).from(pdfContainer).save()
                 .then(function() {
-                    console.log("PDF generato con successo.");
+                    pdfChartInstance.destroy();
+                    btn.disabled = false; btn.innerText = "📊 Esporta Report di Crescita";
                 })
                 .catch(function(err) {
-                    console.error("Errore esportazione html2pdf:", err);
-                })
-                .finally(function() {
-                    // Richiudiamo il container di backup per non rovinare la schermata iniziale
-                    pdfContainer.style.display = 'none';
-                    btn.disabled = false;
-                    btn.innerText = "📊 Esporta Report di Crescita";
+                    console.error(err);
+                    alert("Errore esportazione PDF.");
+                    pdfChartInstance.destroy();
+                    btn.disabled = false; btn.innerText = "📊 Esporta Report di Crescita";
                 });
-            }, 250);
+            }, 500);
         });
     </script>
 </body>
