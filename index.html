@@ -338,7 +338,7 @@
 
         <div class="right-column">
             <div class="card">
-                <h2 class="card-title">📈 Diario di Crescita Unificato</h2>
+                <h2 class="card-title">📈 Curva di Crescita Unificata</h2>
                 <div class="chart-wrapper"><canvas id="growthChart"></canvas></div>
             </div>
             <div class="card" style="margin-bottom: 20px;">
@@ -689,47 +689,42 @@
                 datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null);
             });
 
-            // NUOVA CONFIGURAZIONE STRUTTURA GRAFICO (AREA SFUMATA + LINEA SOTTILE CON PUNTI GRANDI)
+            // CONFIGURAZIONE GRAFICO: STRUTTURA A DOPPIA LINEA SOTTILE SIMMETRICA SULLO STESSO STILE DELLA TABELLA
             var ctx = document.getElementById('growthChart').getContext('2d');
             if (myChart) { myChart.destroy(); }
             var isMobile = window.innerWidth < 600;
 
-            // Creazione gradiente azzurro trasparente per l'area del latte
-            var gradientMilk = ctx.createLinearGradient(0, 0, 0, 300);
-            gradientMilk.addColorStop(0, 'rgba(93, 169, 233, 0.45)');
-            gradientMilk.addColorStop(1, 'rgba(93, 169, 233, 0.02)');
-
             myChart = new Chart(ctx, {
+                type: 'line',
                 data: {
                     labels: giorniOrdinati.length > 0 ? giorniOrdinati : ["Nessun dato"],
                     datasets: [
                         { 
-                            type: 'line',
-                            label: 'Latte Giornaliero (ml)', 
-                            data: datasetLatte, 
-                            borderColor: '#5da9e9', 
-                            backgroundColor: gradientMilk, 
-                            borderWidth: 2, 
-                            fill: true, // Trasforma il latte in una morbida collina di sfondo
-                            tension: 0.3, // Smussa le curve per renderle più piacevoli
-                            pointBackgroundColor: '#2b618c', 
-                            pointRadius: 4,
-                            yAxisID: 'yLatte', 
-                            spanGaps: true
-                        },
-                        { 
-                            type: 'line',
                             label: 'Peso Corporeo (kg)', 
                             data: datasetPeso, 
                             borderColor: '#ff758c', 
                             backgroundColor: 'transparent', 
-                            borderWidth: 4, 
+                            borderWidth: 3, 
                             pointBackgroundColor: '#ffffff',
                             pointBorderColor: '#ff4f6e',
-                            pointBorderWidth: 3,
-                            pointRadius: 6, // Rende i punti del peso macroscopici e facili da premere/vedere
-                            pointHoverRadius: 8,
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
                             yAxisID: 'yPeso', 
+                            spanGaps: true
+                        },
+                        { 
+                            label: 'Latte Giornaliero (ml)', 
+                            data: datasetLatte, 
+                            borderColor: '#5da9e9', 
+                            backgroundColor: 'transparent', 
+                            borderWidth: 3, 
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#2b618c',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            yAxisID: 'yLatte', 
                             spanGaps: true
                         }
                     ]
