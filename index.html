@@ -9,8 +9,6 @@
     <meta name="apple-mobile-web-app-title" content="Diario Baby">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
     <style>
         :root {
@@ -259,20 +257,6 @@
             .table-scroll { max-height: 330px; }
         }
 
-        /* AREA ESPORTAZIONE PDF */
-        #pdf-export-area { position: absolute; left: -9999px; top: 0; width: 794px; background-color: #fff9fa; padding: 45px; box-sizing: border-box; }
-        .pdf-header { text-align: center; border-bottom: 3px dashed #ffb6c1; padding-bottom: 25px; margin-bottom: 30px; }
-        .pdf-header h1 { color: #ff8da1; font-size: 3.2rem; }
-        .pdf-header p { font-size: 1.2rem; color: #8c7b7b; font-style: italic; }
-        .pdf-section-title { color: #ff8da1; font-size: 1.6rem; margin: 30px 0 15px 0; border-left: 6px solid #ffb6c1; padding-left: 12px; font-weight: bold; }
-        .pdf-section-title.pdf-milk-title { color: #468ac4; border-left-color: #a4d4ff; }
-        .pdf-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 10px; table-layout: fixed; }
-        .pdf-table th { background-color: #ffb6c1; color: white; padding: 14px 10px; font-size: 1.05rem; }
-        .pdf-table.pdf-milk-table th { background-color: #a4d4ff; color: #2b618c; }
-        .pdf-table td { padding: 14px 10px; border-bottom: 1px solid #ffe4e1; font-size: 0.95rem; }
-        .pdf-table.pdf-milk-table td { border-bottom-color: #e2effa; }
-        .pdf-average-box { background: #edf5fc; border: 1px solid #a4d4ff; color: #2b618c; padding: 15px; border-radius: 12px; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; }
-
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-5px); }
@@ -300,9 +284,9 @@
         </div>
 
         <div class="pdf-login-box">
-            <h3>Esportazione Rapida</h3>
-            <p>Genera un unico documento PDF contenente il grafico comparativo, l'elenco delle pesate e il diario del latte.</p>
-            <button type="button" class="btn-pdf" id="downloadPdfBtn">📥 Scarica Report PDF Completo</button>
+            <h3>Esportazione Report PDF</h3>
+            <p>Genera un documento pulito, elegante e ad altissima definizione con grafici e storici pronti da salvare.</p>
+            <button type="button" class="btn-pdf" id="downloadPdfBtn">📊 Esporta Report di Crescita</button>
         </div>
     </div>
 
@@ -420,50 +404,13 @@
         </div>
     </div>
 
-    <div id="pdf-export-area">
-        <div class="pdf-header">
-            <h1>Piccola Baby 👶🏼🎀</h1>
-            <p>✨ Diario ufficiale e grafico della crescita della nostra bimba ✨</p>
-        </div>
-        
-        <div class="pdf-section-title">📈 Grafico Comparativo (Crescita & Alimentazione)</div>
-        <div style="background: white; padding: 20px; border-radius: 20px; border: 1px solid #ffe4e1; margin-bottom: 20px;">
-            <img id="pdf-chart-image" style="width: 100%; height: auto; display: block;" />
-        </div>
-
-        <div class="pdf-section-title">📋 Registro Cronologico delle Pesate</div>
-        <table class="pdf-table">
-            <thead>
-                <tr>
-                    <th style="width: 33%;">Data e Ora</th>
-                    <th style="width: 20%;">Peso Registrato</th>
-                    <th style="width: 25%;">Momento</th>
-                    <th style="width: 22%;">Note e Appunti</th>
-                </tr>
-            </thead>
-            <tbody id="pdfTableBody"></tbody>
-        </table>
-
-        <div id="pdfMilkSection" style="display:none; margin-top: 30px;">
-            <div class="pdf-section-title pdf-milk-title">🍼 Diario Cronologico Poppate</div>
-            <div class="pdf-average-box" id="pdfMilkAverage">Media Giornaliera: -</div>
-            <table class="pdf-table pdf-milk-table">
-                <thead>
-                    <tr>
-                        <th style="width: 33%;">Data e Ora</th>
-                        <th style="width: 20%;">Quantità Assunta</th>
-                        <th style="width: 47%;">Note di Giornata</th>
-                    </tr>
-                </thead>
-                <tbody id="pdfMilkTableBody"></tbody>
-            </table>
-        </div>
-    </div>
+    <iframe id="printFrame" style="position: absolute; width: 0; height: 0; border: 0;"></iframe>
 
     <script>
         var pesateHistory = [];
         var latteHistory = [];
         var myChart = null;
+        var mediaTestoPdf = "";
 
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWo_0GczG1sa8dwqvaP3tWWQr0Hgdx4kQOYVEPJBX3G5uN3S42cHyitbAyYH5eObtr/exec";
 
@@ -502,21 +449,17 @@
             document.getElementById('login-screen').style.display = 'flex';
         }
 
-        // DIZIONARIO PER INTERPRETARE I MESI IN INGLESE DAL DATABASE
         var mesiMappa = {
             'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
             'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
         };
 
-        // PARSER DI DATA ROBUSTO UNIVERSALE
         function pulisciData(dataStr) {
             if (!dataStr) return "-";
             var s = dataStr.toString().trim();
 
-            // Rimuove fusi orari testuali
             s = s.split("GMT")[0].split("(")[0].split("Ora")[0].trim();
 
-            // Se la stringa contiene un mese in formato inglese (es. "Sun May 24 2026 12:20:00")
             var pezzi = s.split(/\s+/);
             if (pezzi.length >= 4 && mesiMappa[pezzi[1]] !== undefined) {
                 var meseNum = mesiMappa[pezzi[1]];
@@ -525,7 +468,6 @@
                 
                 var d = new Date(annoNum, meseNum, giornoNum);
                 
-                // Cerca se c'è l'orario (es. "12:20:00")
                 var orarioTrovato = pezzi.find(p => p.includes(":"));
                 if (orarioTrovato) {
                     var hms = orarioTrovato.split(":");
@@ -538,7 +480,6 @@
                 }
             }
 
-            // Fallback standard per ISO string o formati nostrani
             try {
                 var dStandard = new Date(s);
                 if (isNaN(dStandard.getTime())) {
@@ -566,7 +507,6 @@
             .then(res => res.json())
             .then(data => {
                 if(data) {
-                    // Pulisce e isola solo i dati veri e validi
                     pesateHistory = (data.pesate || []).filter(p => p.weight && !p.weight.toString().includes("NaN") && p.weight.toString().trim() !== "" && p.date);
                     latteHistory = (data.latte || []).filter(l => l.quantity && !isNaN(parseInt(l.quantity)) && l.date);
                 }
@@ -586,7 +526,6 @@
             caricaTuttiIDati();
         });
 
-        // FORM PESO
         document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
             var submitBtn = document.getElementById('submitBtn');
@@ -616,7 +555,6 @@
             .finally(() => { submitBtn.disabled = false; submitBtn.innerText = 'Salva nei Dati ✨'; });
         });
 
-        // FORM LATTE
         document.getElementById('milkForm').addEventListener('submit', function(e) {
             e.preventDefault();
             var submitBtn = document.getElementById('submitMilkBtn');
@@ -646,10 +584,8 @@
         });
 
         function aggiornaGraficoEInterfacce() {
-            // 1. TABELLA PESO
             var tableBody = document.getElementById('tableBody');
-            var pdfTableBody = document.getElementById('pdfTableBody');
-            tableBody.innerHTML = ""; pdfTableBody.innerHTML = "";
+            tableBody.innerHTML = "";
             
             if (pesateHistory && pesateHistory.length > 0) {
                 pesateHistory.forEach(p => {
@@ -657,47 +593,37 @@
                     var pesoPulito = p.weight.toString().includes("kg") ? p.weight : parseFloat(p.weight).toFixed(3) + " kg";
                     var str = "<td>" + dt + "</td><td><strong>" + pesoPulito + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
                     var r1 = document.createElement('tr'); r1.innerHTML = str; tableBody.appendChild(r1);
-                    var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableBody.appendChild(r2);
                 });
             } else {
                 tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">Nessun dato peso presente.</td></tr>';
             }
 
-            // 2. TABELLA LATTE (PERFETTAMENTE UNIFORMATA)
             var tableMilkBody = document.getElementById('tableMilkBody');
-            var pdfMilkTableBody = document.getElementById('pdfMilkTableBody');
-            var pdfMilkSection = document.getElementById('pdfMilkSection');
-            tableMilkBody.innerHTML = ""; pdfMilkTableBody.innerHTML = "";
+            tableMilkBody.innerHTML = "";
 
             var latteMappaGiorni = {};
             if (latteHistory && latteHistory.length > 0) {
-                pdfMilkSection.style.display = "block";
                 latteHistory.forEach(l => {
                     var dt = pulisciData(l.date);
                     var quantitaUnita = l.quantity.toString().includes("ml") ? l.quantity : l.quantity + " ml";
                     var str = "<td>" + dt + "</td><td><strong style='color:#3a87c4;'> " + quantitaUnita + "</strong></td><td>" + l.notes + "</td>";
                     var r1 = document.createElement('tr'); r1.innerHTML = str; tableMilkBody.appendChild(r1);
-                    var r2 = document.createElement('tr'); r2.innerHTML = str; pdfMilkTableBody.appendChild(r2);
 
                     var giornoKey = dt.split(" ")[0];
                     latteMappaGiorni[giornoKey] = (latteMappaGiorni[giornoKey] || 0) + parseInt(l.quantity);
                 });
             } else {
                 tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata inserita.</td></tr>';
-                pdfMilkSection.style.display = "none";
             }
 
-            // Medie
             var chiaviGiorni = Object.keys(latteMappaGiorni);
             var sommaMl = 0; var numGiorni = Math.min(chiaviGiorni.length, 7);
             for(var i=0; i<numGiorni; i++) { sommaMl += latteMappaGiorni[chiaviGiorni[i]]; }
             var mediaCalcolata = numGiorni > 0 ? Math.round(sommaMl / numGiorni) : 0;
             document.getElementById('averageLabel').innerText = mediaCalcolata + " ml";
-            document.getElementById('pdfMilkAverage').innerText = "Media Giornaliera Effettiva (Ultimi " + numGiorni + " giorni): " + mediaCalcolata + " ml";
+            mediaTestoPdf = "Media Giornaliera Effettiva (Ultimi " + numGiorni + " giorni): " + mediaCalcolata + " ml";
 
-            // 3. GENERAZIONE TIMELINE GRAFICO COMPARATIVO LINEARE
             var timelineMappa = {};
-            
             if (pesateHistory) {
                 pesateHistory.forEach(p => {
                     var dSolo = pulisciData(p.date).split(" ")[0];
@@ -750,7 +676,6 @@
                             pointBorderColor: '#ff4f6e',
                             pointBorderWidth: 2,
                             pointRadius: 5,
-                            pointHoverRadius: 7,
                             yAxisID: 'yPeso', 
                             spanGaps: true
                         },
@@ -764,7 +689,6 @@
                             pointBorderColor: '#2b618c',
                             pointBorderWidth: 2,
                             pointRadius: 5,
-                            pointHoverRadius: 7,
                             yAxisID: 'yLatte', 
                             spanGaps: true
                         }
@@ -775,14 +699,13 @@
                     maintainAspectRatio: true,
                     aspectRatio: isMobile ? 1.3 : 2.2,
                     plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 15, font: { weight: 'bold', size: 12 } } }
+                        legend: { position: 'top', labels: { font: { weight: 'bold', size: 12 } } }
                     },
                     scales: {
                         yPeso: { 
                             type: 'linear', 
                             position: 'left', 
-                            title: { display: true, text: 'Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }, 
-                            grid: { color: '#fcedf0' } 
+                            title: { display: true, text: 'Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }
                         },
                         yLatte: { 
                             type: 'linear', 
@@ -795,39 +718,183 @@
             });
         }
 
-        // PDF
+        // ESPORTAZIONE DIRETTA SENZA REDIRECT (UTILIZZANDO IFRAME NASCOSTO)
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            var downloadBtn = document.getElementById('downloadPdfBtn');
-            downloadBtn.disabled = true; downloadBtn.innerText = "Generazione Grafici e Tabelle...";
+            if(!myChart) return;
             
-            if(myChart) {
-                document.getElementById('pdf-chart-image').src = myChart.toBase64Image();
+            var chartImgBase64 = myChart.toBase64Image();
+            
+            var righePeso = "";
+            if (pesateHistory.length > 0) {
+                pesateHistory.forEach(p => {
+                    var dt = pulisciData(p.date);
+                    var pesoPulito = p.weight.toString().includes("kg") ? p.weight : parseFloat(p.weight).toFixed(3) + " kg";
+                    righePeso += `<tr><td>${dt}</td><td class="bold">${pesoPulito}</td><td>${p.moment}</td><td>${p.notes}</td></tr>`;
+                });
+            } else {
+                righePeso = `<tr><td colspan="4" style="text-align:center; color:#999;">Nessun dato registrato</td></tr>`;
             }
-            
+
+            var righeLatte = "";
+            var visualizzaSezioneLatte = "none";
+            if (latteHistory.length > 0) {
+                visualizzaSezioneLatte = "block";
+                latteHistory.forEach(l => {
+                    var dt = pulisciData(l.date);
+                    var quantitaUnita = l.quantity.toString().includes("ml") ? l.quantity : l.quantity + " ml";
+                    righeLatte += `<tr><td>${dt}</td><td class="bold text-blue">${quantitaUnita}</td><td>${l.notes}</td></tr>`;
+                });
+            }
+
+            // Prepariamo l'HTML del report
+            var htmlReport = `
+                <!DOCTYPE html>
+                <html lang="it">
+                <head>
+                    <meta charset="UTF-8">
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', -apple-system, sans-serif;
+                            color: #333;
+                            background-color: #fff;
+                            padding: 25px;
+                            margin: 0;
+                        }
+                        .header {
+                            text-align: center;
+                            border-bottom: 3px dashed #ffb6c1;
+                            padding-bottom: 15px;
+                            margin-bottom: 25px;
+                        }
+                        .header h1 { color: #ff8da1; margin: 0 0 5px 0; font-size: 2.3rem; }
+                        .header p { color: #777; font-style: italic; margin: 0; font-size: 1.05rem; }
+                        
+                        .section-title {
+                            color: #ff8da1;
+                            font-size: 1.3rem;
+                            font-weight: bold;
+                            margin: 25px 0 12px 0;
+                            border-left: 5px solid #ffb6c1;
+                            padding-left: 10px;
+                            page-break-after: avoid;
+                        }
+                        .section-title.milk-title {
+                            color: #468ac4;
+                            border-left-color: #a4d4ff;
+                        }
+                        
+                        .chart-container {
+                            text-align: center;
+                            margin-bottom: 25px;
+                            background: #fff;
+                            border: 1px solid #ffe4e1;
+                            border-radius: 16px;
+                            padding: 12px;
+                        }
+                        .chart-container img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                        
+                        .average-box {
+                            background: #edf5fc;
+                            border: 1px solid #a4d4ff;
+                            color: #2b618c;
+                            padding: 10px 12px;
+                            border-radius: 12px;
+                            font-size: 1rem;
+                            margin-bottom: 12px;
+                            font-weight: bold;
+                        }
+                        
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 20px;
+                            font-size: 0.9rem;
+                        }
+                        th, td {
+                            padding: 10px 12px;
+                            text-align: left;
+                            border-bottom: 1px solid #eee;
+                            word-wrap: break-word;
+                        }
+                        th {
+                            background-color: #fff0f2;
+                            color: #e6677e;
+                            font-weight: bold;
+                        }
+                        .milk-table th {
+                            background-color: #edf5fc;
+                            color: #468ac4;
+                        }
+                        .bold { font-weight: bold; }
+                        .text-blue { color: #3a87c4; }
+                        
+                        @media print {
+                            body { padding: 0; }
+                            tr { page-break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Piccola Baby 👶🏼🎀</h1>
+                        <p>Diario di Crescita e Alimentazione Aggiornato</p>
+                    </div>
+
+                    <div class="section-title">📈 Grafico Comparativo (Crescita & Alimentazione)</div>
+                    <div class="chart-container">
+                        <img src="${chartImgBase64}" alt="Grafico Crescita">
+                    </div>
+
+                    <div class="section-title">📋 Registro Cronologico delle Pesate</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Data e Ora</th>
+                                <th style="width: 20%;">Peso Registrato</th>
+                                <th style="width: 25%;">Momento</th>
+                                <th style="width: 25%;">Note / Appunti</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${righePeso}
+                        </tbody>
+                    </table>
+
+                    <div style="display: ${visualizzaSezioneLatte};">
+                        <div class="section-title milk-title">🍼 Diario Cronologico Poppate</div>
+                        <div class="average-box">${mediaTestoPdf}</div>
+                        <table class="milk-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%;">Data e Ora</th>
+                                    <th style="width: 20%;">Quantità Assunta</th>
+                                    <th style="width: 50%;">Note di Giornata</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${righeLatte}
+                            </tbody>
+                        </table>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Otteniamo l'iframe nascosto, ci iniettiamo l'HTML e lanciamo la stampa nativa
+            var iframe = document.getElementById('printFrame');
+            var doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(htmlReport);
+            doc.close();
+
+            // Aspettiamo un istante che le immagini/grafici siano renderizzati nell'iframe e avviamo la stampa
             setTimeout(function() {
-                html2canvas(document.getElementById('pdf-export-area'), { scale: 2, useCORS: true, logging: false }).then(function(canvas) {
-                    var imgData = canvas.toDataURL('image/jpeg', 0.95);
-                    var pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
-                    var widthInMm = pdf.internal.pageSize.getWidth();
-                    var heightInMm = pdf.internal.pageSize.getHeight();
-                    var imgHeightInMm = (canvas.height * widthInMm) / canvas.width;
-                    
-                    var heightLeft = imgHeightInMm;
-                    var position = 0;
-
-                    pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
-                    heightLeft -= heightInMm;
-
-                    while (heightLeft >= 0) {
-                        position = heightLeft - imgHeightInMm;
-                        pdf.addPage();
-                        pdf.addImage(imgData, 'JPEG', 0, position, widthInMm, imgHeightInMm);
-                        heightLeft -= heightInMm;
-                    }
-                    
-                    pdf.save('Diario_Crescita_Misto_Baby.pdf');
-                }).finally(() => { downloadBtn.disabled = false; downloadBtn.innerText = '📥 Scarica Report PDF Completo'; });
-            }, 800);
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            }, 300);
         });
     </script>
 </body>
