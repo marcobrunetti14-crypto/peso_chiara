@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-title" content="Diario Baby">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -170,7 +170,7 @@
             padding: 14px;
             border: 2px solid #fcecee;
             border-radius: 16px;
-            font-size: 1rem;
+            font-size: 1.05rem;
             color: var(--text-color);
             background-color: #fffefe;
             outline: none;
@@ -248,6 +248,24 @@
         .col-latte-data { width: 33%; }
         .col-latte-val { width: 20%; }
         .col-latte-note { width: 47%; }
+
+        /* AREA DI ESPORTAZIONE INVISIBILE AL CLIENT MA LETTA DAL GENERATORE PDF */
+        #pdf-export-container {
+            display: none;
+            width: 750px;
+            padding: 30px;
+            background-color: #fff6f7;
+            flex-direction: column;
+            gap: 25px;
+        }
+        #pdf-export-container .card {
+            box-shadow: none !important;
+            border: 1px solid rgba(255, 141, 161, 0.2) !important;
+        }
+        #pdf-export-container .table-scroll {
+            max-height: none !important;
+            overflow: visible !important;
+        }
 
         @media (min-width: 850px) {
             body { padding: 30px 20px; }
@@ -405,10 +423,62 @@
         </div>
     </div>
 
+    <div id="pdf-export-container">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h1 style="color: var(--primary-color); font-size: 2.2rem; font-weight: 800;">Il Diario di Baby</h1>
+            <p style="color: #7a6666; font-size: 1rem; font-style: italic; margin-top: 5px;">Report Cronologico di Accrescimento ed Alimentazione</p>
+            <div style="height: 2px; background-color: var(--primary-light); margin: 15px auto 5px auto; width: 90%;"></div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">📈 Curva di Crescita e Trend Alimentare</h2>
+            <div style="width: 100%; height: 320px; position: relative;">
+                <canvas id="pdfGrowthChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">⚖️ Storico Integrale delle Pesate</h2>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-data-ora" style="background-color: #fff0f2; color: #e6677e;">Data e Ora</th>
+                            <th class="col-valore" style="background-color: #fff0f2; color: #e6677e;">Peso</th>
+                            <th class="col-momento" style="background-color: #fff0f2; color: #e6677e;">Momento</th>
+                            <th class="col-note" style="background-color: #fff0f2; color: #e6677e;">Note</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pdfTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" style="background-color: #f0f7ff;">
+            <h2 class="card-title" style="color: var(--milk-color);">🍼 Registro Cronologico delle Poppate</h2>
+            <div class="average-container" style="margin-bottom: 15px; padding: 10px;">
+                Volume medio calcolato (Ultimi 7 giorni attivi): <strong id="pdfAverageLabel">0 ml</strong>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-latte-data" style="background-color: #edf5fc; color: #468ac4;">Data e Ora</th>
+                            <th class="col-latte-val" style="background-color: #edf5fc; color: #468ac4;">Quantità</th>
+                            <th class="col-latte-note" style="background-color: #edf5fc; color: #468ac4;">Note / Appunti</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pdfTableMilkBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         var pesateHistory = [];
         var latteHistory = [];
         var myChart = null;
+        var pdfChart = null;
         var mediaCalcolataGlobal = 0;
 
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWo_0GczG1sa8dwqvaP3tWWQr0Hgdx4kQOYVEPJBX3G5uN3S42cHyitbAyYH5eObtr/exec";
@@ -572,23 +642,53 @@
             .finally(() => { submitBtn.disabled = false; submitBtn.innerText = 'Salva Poppata 🍼'; });
         });
 
+        function creaDatasetComuni(giorniOrdinati, timelineMappa) {
+            var datasetPeso = []; var datasetLatte = [];
+            giorniOrdinati.forEach(g => {
+                datasetPeso.push(timelineMappa[g].peso);
+                datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null);
+            });
+            return { peso: datasetPeso, latte: datasetLatte };
+        }
+
+        function ottieniConfigurazioneScale() {
+            return {
+                yPeso: { 
+                    type: 'linear', 
+                    position: 'left', 
+                    title: { display: true, text: 'Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }
+                },
+                yLatte: { 
+                    type: 'linear', 
+                    position: 'right', 
+                    title: { display: true, text: 'Latte Assunto (ml)', color: '#5da9e9', font: { weight: 'bold' } }, 
+                    grid: { display: false } 
+                }
+            };
+        }
+
         function aggiornaGraficoEInterfacce() {
             var tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = "";
+            var pdfTableBody = document.getElementById('pdfTableBody');
+            tableBody.innerHTML = ""; pdfTableBody.innerHTML = "";
             
             if (pesateHistory && pesateHistory.length > 0) {
                 pesateHistory.forEach(p => {
                     var dt = pulisciData(p.date);
                     var pesoPulito = p.weight.toString().includes("kg") ? p.weight : parseFloat(p.weight).toFixed(3) + " kg";
                     var str = "<td>" + dt + "</td><td><strong>" + pesoPulito + "</strong></td><td>" + p.moment + "</td><td>" + p.notes + "</td>";
+                    
                     var r1 = document.createElement('tr'); r1.innerHTML = str; tableBody.appendChild(r1);
+                    var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableBody.appendChild(r2);
                 });
             } else {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">Nessun dato peso presente.</td></tr>';
+                var vuotoStr = '<tr><td colspan="4" style="text-align: center; color: #bfa3a3; padding: 25px;">Nessun dato peso presente.</td></tr>';
+                tableBody.innerHTML = vuotoStr; pdfTableBody.innerHTML = vuotoStr;
             }
 
             var tableMilkBody = document.getElementById('tableMilkBody');
-            tableMilkBody.innerHTML = "";
+            var pdfTableMilkBody = document.getElementById('pdfTableMilkBody');
+            tableMilkBody.innerHTML = ""; pdfTableMilkBody.innerHTML = "";
 
             var latteMappaGiorni = {};
             if (latteHistory && latteHistory.length > 0) {
@@ -596,20 +696,25 @@
                     var dt = pulisciData(l.date);
                     var quantitaUnita = l.quantity.toString().includes("ml") ? l.quantity : l.quantity + " ml";
                     var str = "<td>" + dt + "</td><td><strong style='color:#3a87c4;'> " + quantitaUnita + "</strong></td><td>" + l.notes + "</td>";
+                    
                     var r1 = document.createElement('tr'); r1.innerHTML = str; tableMilkBody.appendChild(r1);
+                    var r2 = document.createElement('tr'); r2.innerHTML = str; pdfTableMilkBody.appendChild(r2);
 
                     var giornoKey = dt.split(" ")[0];
                     latteMappaGiorni[giornoKey] = (latteMappaGiorni[giornoKey] || 0) + parseInt(l.quantity);
                 });
             } else {
-                tableMilkBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata inserita.</td></tr>';
+                var vuotoLatteStr = '<tr><td colspan="3" style="text-align: center; color: #b5c7d6; padding: 25px;">Nessuna poppata inserita.</td></tr>';
+                tableMilkBody.innerHTML = vuotoLatteStr; pdfTableMilkBody.innerHTML = vuotoLatteStr;
             }
 
             var chiaviGiorni = Object.keys(latteMappaGiorni);
             var sommaMl = 0; var numGiorni = Math.min(chiaviGiorni.length, 7);
             for(var i=0; i<numGiorni; i++) { sommaMl += latteMappaGiorni[chiaviGiorni[i]]; }
             mediaCalcolataGlobal = numGiorni > 0 ? Math.round(sommaMl / numGiorni) : 0;
+            
             document.getElementById('averageLabel').innerText = mediaCalcolataGlobal + " ml";
+            document.getElementById('pdfAverageLabel').innerText = mediaCalcolataGlobal + " ml";
 
             var timelineMappa = {};
             if (pesateHistory) {
@@ -639,232 +744,92 @@
                 return new Date(pA[2], pA[1]-1, pA[0]) - new Date(pB[2], pB[1]-1, pB[0]);
             });
 
-            var datasetPeso = []; var datasetLatte = [];
-            giorniOrdinati.forEach(g => {
-                datasetPeso.push(timelineMappa[g].peso);
-                datasetLatte.push(timelineMappa[g].latte > 0 ? timelineMappa[g].latte : null);
-            });
+            var datasets = creaDatasetComuni(giorniOrdinati, timelineMappa);
+            var etichetteX = giorniOrdinati.length > 0 ? giorniOrdinati : ["Nessun dato"];
 
             var ctx = document.getElementById('growthChart').getContext('2d');
             if (myChart) { myChart.destroy(); }
-            var isMobile = window.innerWidth < 600;
+            
+            var configData = {
+                labels: etichetteX,
+                datasets: [
+                    { 
+                        label: 'Peso Corporeo (kg)', data: datasets.peso, borderColor: '#ff758c', backgroundColor: 'transparent', borderWidth: 3, 
+                        pointBackgroundColor: '#ffffff', pointBorderColor: '#ff4f6e', pointBorderWidth: 2, pointRadius: 5, yAxisID: 'yPeso', spanGaps: true
+                    },
+                    { 
+                        label: 'Latte Giornaliero (ml)', data: datasets.latte, borderColor: '#5da9e9', backgroundColor: 'transparent', borderWidth: 3, 
+                        pointBackgroundColor: '#ffffff', pointBorderColor: '#2b618c', pointBorderWidth: 2, pointRadius: 5, yAxisID: 'yLatte', spanGaps: true
+                    }
+                ]
+            };
 
             myChart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: giorniOrdinati.length > 0 ? giorniOrdinati : ["Nessun dato"],
-                    datasets: [
-                        { 
-                            label: 'Peso Corporeo (kg)', 
-                            data: datasetPeso, 
-                            borderColor: '#ff758c', 
-                            backgroundColor: 'transparent', 
-                            borderWidth: 3, 
-                            pointBackgroundColor: '#ffffff',
-                            pointBorderColor: '#ff4f6e',
-                            pointBorderWidth: 2,
-                            pointRadius: 5,
-                            yAxisID: 'yPeso', 
-                            spanGaps: true
-                        },
-                        { 
-                            label: 'Latte Giornaliero (ml)', 
-                            data: datasetLatte, 
-                            borderColor: '#5da9e9', 
-                            backgroundColor: 'transparent', 
-                            borderWidth: 3, 
-                            pointBackgroundColor: '#ffffff',
-                            pointBorderColor: '#2b618c',
-                            pointBorderWidth: 2,
-                            pointRadius: 5,
-                            yAxisID: 'yLatte', 
-                            spanGaps: true
-                        }
-                    ]
-                },
+                data: configData,
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: isMobile ? 1.3 : 2.2,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { weight: 'bold', size: 12 } } }
-                    },
-                    scales: {
-                        yPeso: { 
-                            type: 'linear', 
-                            position: 'left', 
-                            title: { display: true, text: 'Peso (kg)', color: '#ff758c', font: { weight: 'bold' } }
-                        },
-                        yLatte: { 
-                            type: 'linear', 
-                            position: 'right', 
-                            title: { display: true, text: 'Latte Assunto (ml)', color: '#5da9e9', font: { weight: 'bold' } }, 
-                            grid: { display: false } 
-                        }
-                    }
+                    responsive: true, maintainAspectRatio: true, aspectRatio: window.innerWidth < 600 ? 1.3 : 2.2,
+                    plugins: { legend: { position: 'top', labels: { font: { weight: 'bold', size: 12 } } } },
+                    scales: ottieniConfigurazioneScale()
+                }
+            });
+
+            // CREAZIONE SIMULTANEA DEL GRAFICO COPIATO PER IL PDF (SBLOCCA IL BUG DEI GRAFICI ARRESTATI)
+            var pdfCtx = document.getElementById('pdfGrowthChart').getContext('2d');
+            if (pdfChart) { pdfChart.destroy(); }
+            pdfChart = new Chart(pdfCtx, {
+                type: 'line',
+                data: configData,
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: false, // Disattivata per rendere lo scatto fotografico immediato
+                    plugins: { legend: { position: 'top', labels: { font: { weight: 'bold', size: 11 } } } },
+                    scales: ottieniConfigurazioneScale()
                 }
             });
         }
 
         // ==========================================================================
-        // NUOVA GENERAZIONE PDF REALE (JSPDF): INTEGRITÀ GRAFICA E NESSUN REDIRECT
+        // STRATEGIA HTML2PDF: ACQUISIZIONE REALE IN ALTA DEFINIZIONE SENZA REDIRECT
         // ==========================================================================
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            if (!myChart) return;
-
             var btn = document.getElementById('downloadPdfBtn');
             btn.disabled = true;
-            btn.innerText = "Generazione PDF... ⏳";
+            btn.innerText = "Cattura Grafica... ⏳";
 
+            // Sblocchiamo temporaneamente il blocco invisibile per consentire ad html2pdf di scansionarlo
+            var pdfContainer = document.getElementById('pdf-export-container');
+            pdfContainer.style.display = 'flex';
+
+            // Diamo un micro-istante al motore grafico di allineare i dati della tabella
             setTimeout(function() {
-                try {
-                    const { jsPDF } = window.jspdf;
-                    var pdf = new jsPDF('p', 'mm', 'a4');
-                    
-                    // Configurazione layout iniziale
-                    pdf.setFillColor(255, 246, 247); // Sfondo rosa chiaro coordinato
-                    pdf.rect(0, 0, 210, 297, 'F');
+                var opzioniScatto = {
+                    margin: [10, 10, 10, 10],
+                    filename: 'diario_crescita_baby.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, // Raddoppia la definizione per rendere i testi nitidissimi
+                        useCORS: true, 
+                        logging: false 
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css'] } // Evita che i titoli o le righe vengano tagliati a metà foglio
+                };
 
-                    // Intestazione Report Elegante
-                    pdf.setTextColor(255, 141, 161);
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setFontSize(24);
-                    pdf.text("Il Diario di Baby", 105, 20, { align: 'center' });
-                    
-                    pdf.setTextColor(100, 100, 100);
-                    pdf.setFont("helvetica", "italic");
-                    pdf.setFontSize(11);
-                    pdf.text("Report Clinico Cronologico di Crescita ed Alimentazione", 105, 27, { align: 'center' });
-
-                    // Linea divisoria estetica
-                    pdf.setDrawColor(255, 182, 193);
-                    pdf.setLineWidth(0.5);
-                    pdf.line(15, 32, 195, 32);
-
-                    // Estrazione e iniezione Sicura del Grafico ad alta risoluzione
-                    pdf.setTextColor(255, 117, 140);
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setFontSize(14);
-                    pdf.text("1. Grafico della Tendenza Generale", 15, 42);
-
-                    var chartImg = myChart.toBase64Image('image/png', 1.0);
-                    // Disegnamo il grafico proporzionato in mezzo al foglio
-                    pdf.addImage(chartImg, 'PNG', 15, 47, 180, 85);
-
-                    // Sezione Storico Pesate
-                    pdf.setTextColor(255, 117, 140);
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setFontSize(14);
-                    pdf.text("2. Registro Storico delle Pesate", 15, 145);
-
-                    // Intestazione Tabella Peso
-                    pdf.setFillColor(255, 240, 242);
-                    pdf.rect(15, 150, 180, 8, 'F');
-                    pdf.setTextColor(230, 103, 126);
-                    pdf.setFontSize(10);
-                    pdf.setFont("helvetica", "bold");
-                    pdf.text("Data e Ora", 18, 155);
-                    pdf.text("Peso Corporeo", 65, 155);
-                    pdf.text("Condizione", 105, 155);
-                    pdf.text("Note e Osservazioni", 145, 155);
-
-                    var yPos = 164;
-                    pdf.setTextColor(60, 60, 60);
-                    pdf.setFont("helvetica", "normal");
-                    pdf.setFontSize(9);
-
-                    if (pesateHistory.length === 0) {
-                        pdf.text("Nessun dato registrato", 18, yPos);
-                        yPos += 8;
-                    } else {
-                        // Stampiamo fino a saturazione pagina
-                        var maxPesate = Math.min(pesateHistory.length, 14);
-                        for (var i = 0; i < maxPesate; i++) {
-                            var p = pesateHistory[i];
-                            var dt = pulisciData(p.date);
-                            var peso = p.weight.toString().includes("kg") ? p.weight : parseFloat(p.weight).toFixed(3) + " kg";
-                            
-                            pdf.text(dt, 18, yPos);
-                            pdf.setFont("helvetica", "bold");
-                            pdf.text(peso, 65, yPos);
-                            pdf.setFont("helvetica", "normal");
-                            pdf.text(p.moment || "-", 105, yPos);
-                            
-                            var notaTroncata = (p.notes || "-").substring(0, 26);
-                            pdf.text(notaTroncata, 145, yPos);
-
-                            pdf.setDrawColor(250, 230, 232);
-                            pdf.line(15, yPos + 3, 195, yPos + 3);
-                            yPos += 8;
-                        }
-                    }
-
-                    // Controlliamo se inserire le poppate in una Nuova Pagina (Evita sovrapposizioni)
-                    if (latteHistory.length > 0) {
-                        pdf.addPage();
-                        // Sfondo pagina 2
-                        pdf.setFillColor(240, 247, 255); // Azzurrino latte coordinato
-                        pdf.rect(0, 0, 210, 297, 'F');
-
-                        pdf.setTextColor(93, 169, 233);
-                        pdf.setFont("helvetica", "bold");
-                        pdf.setFontSize(14);
-                        pdf.text("3. Registro Alimentazione e Poppate", 15, 20);
-
-                        // Box riepilogo media giornaliera
-                        pdf.setFillColor(230, 242, 255);
-                        pdf.setDrawColor(164, 212, 255);
-                        pdf.rect(15, 25, 180, 10, 'FD');
-                        pdf.setTextColor(43, 97, 140);
-                        pdf.setFontSize(11);
-                        pdf.text("Volume medio calcolato (Ultimi 7 giorni attivi): " + mediaCalcolataGlobal + " ml", 20, 31.5);
-
-                        // Intestazione Tabella Latte
-                        pdf.setFillColor(237, 245, 252);
-                        pdf.rect(15, 42, 180, 8, 'F');
-                        pdf.setTextColor(70, 138, 196);
-                        pdf.setFont("helvetica", "bold");
-                        pdf.setFontSize(10);
-                        pdf.text("Data e Ora Poppata", 18, 47);
-                        pdf.text("Quantità Assunta", 65, 47);
-                        pdf.text("Note sul Pasto", 110, 47);
-
-                        var yMilkPos = 56;
-                        pdf.setTextColor(60, 60, 60);
-                        pdf.setFont("helvetica", "normal");
-                        pdf.setFontSize(9);
-
-                        var maxLatte = Math.min(latteHistory.length, 26);
-                        for (var j = 0; j < maxLatte; j++) {
-                            var l = latteHistory[j];
-                            var dtL = pulisciData(l.date);
-                            var qta = l.quantity.toString().includes("ml") ? l.quantity : l.quantity + " ml";
-
-                            pdf.text(dtL, 18, yMilkPos);
-                            pdf.setFont("helvetica", "bold");
-                            pdf.text(qta, 65, yMilkPos);
-                            pdf.setFont("helvetica", "normal");
-                            
-                            var notaLTroncata = (l.notes || "-").substring(0, 45);
-                            pdf.text(notaLTroncata, 110, yMilkPos);
-
-                            pdf.setDrawColor(220, 235, 250);
-                            pdf.line(15, yMilkPos + 3, 195, yMilkPos + 3);
-                            yMilkPos += 8;
-                        }
-                    }
-
-                    // Download diretto nativo (Nessuna deviazione, nessuna rottura su iOS/Safari)
-                    pdf.save('diario_crescita_baby.pdf');
-
-                } catch (err) {
-                    console.error(err);
-                    alert("Errore durante la generazione grafica del PDF. Riprova.");
-                } finally {
+                html2pdf().set(opzioniScatto).from(pdfContainer).save()
+                .then(function() {
+                    console.log("PDF generato con successo.");
+                })
+                .catch(function(err) {
+                    console.error("Errore esportazione html2pdf:", err);
+                })
+                .finally(function() {
+                    // Richiudiamo il container di backup per non rovinare la schermata iniziale
+                    pdfContainer.style.display = 'none';
                     btn.disabled = false;
                     btn.innerText = "📊 Esporta Report di Crescita";
-                }
-            }, 150);
+                });
+            }, 250);
         });
     </script>
 </body>
